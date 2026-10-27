@@ -29,10 +29,41 @@ model Product {
   options     String      @default("") // 쉼표 구분 옵션 (예: "S,M,L")
   active      Boolean     @default(true)
   adultOnly   Boolean     @default(false)
+  // ── 스타일 맞춤용 태그 (lib/style.ts 의 키 사용) ──
+  gender      String      @default("U") // M 남성, F 여성, U 공용
+  styles      String      @default("")  // 쉼표 구분 (예: "minimal,dandy")
+  fit         String      @default("")  // slim / regular / over
+  colors      String      @default("")  // 쉼표 구분 (예: "블랙,네이비")
+  sizeChart   String      @default("")  // 실측표 CSV (첫 줄 머리글)
   categoryId  Int
   category    Category    @relation(fields: [categoryId], references: [id])
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
+  lookItems   LookItem[]
+}
+
+// 코디(룩): 여러 상품을 한 세트로 제안
+model Look {
+  id          Int        @id @default(autoincrement())
+  title       String
+  slug        String     @unique
+  description String     @default("")
+  imageUrl    String?
+  gender      String     @default("U")
+  styles      String     @default("")
+  active      Boolean    @default(true)
+  sort        Int        @default(0)
+  createdAt   DateTime   @default(now())
+  items       LookItem[]
+}
+
+model LookItem {
+  id        Int     @id @default(autoincrement())
+  lookId    Int
+  look      Look    @relation(fields: [lookId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sort      Int     @default(0)
 }
 
 model Order {

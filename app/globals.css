@@ -99,3 +99,50 @@ button, input, select, textarea { font: inherit; }
 .stat { border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; min-width: 160px; display: grid; gap: 6px; }
 .stat b { font-size: 22px; }
 .tabs { display: flex; gap: 14px; margin-bottom: 14px; font-size: 14px; flex-wrap: wrap; }
+
+/* ── 스타일 맞춤 ── */
+.cats .hl { font-weight: 700; color: var(--accent); }
+.section-title { font-size: 18px; margin: 32px 0 14px; }
+.mt { margin-top: 28px; } .mt-s { margin-top: 12px; }
+.quiz-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #111; color: #fff;
+  border-radius: 12px; padding: 18px 20px; margin: 4px 0 8px; }
+.quiz-banner b { font-size: 17px; } .quiz-banner p { margin: 4px 0 0; font-size: 13px; color: #ccc; }
+.quiz-banner .arrow { font-size: 22px; }
+.foryou { margin: 8px 0 12px; } .foryou h2 { font-size: 18px; margin: 8px 0 14px; }
+.foryou .more { margin-top: 14px; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tag { font-size: 11px; padding: 2px 7px; border-radius: 10px; background: var(--soft); color: #555; }
+.tag.strong { background: #111; color: #fff; }
+
+.quiz { max-width: 520px; margin: 0 auto; padding-top: 8px; }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.progress div { height: 100%; background: #111; transition: width .25s; }
+.quiz-title { font-size: 22px; margin: 6px 0 6px; }
+.quiz-body { margin: 22px 0 28px; display: grid; gap: 10px; }
+.quiz-nav .btn { padding: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; } .chips.col { flex-direction: column; }
+.chip { padding: 11px 16px; border: 1px solid #ddd; border-radius: 24px; background: #fff; cursor: pointer; font-size: 15px; }
+.chip.on { background: #111; color: #fff; border-color: #111; }
+.field { display: grid; gap: 6px; font-size: 13px; color: #555; }
+.field input { padding: 13px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; width: 100%; }
+.style-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.style-card { text-align: left; padding: 16px 14px; border: 1px solid #ddd; border-radius: 12px; background: #fff; cursor: pointer; display: grid; gap: 4px; }
+.style-card span { font-size: 12px; color: var(--muted); }
+.style-card.on { border: 2px solid #111; background: #fafafa; }
+
+.size-advice { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px;
+  border-radius: 10px; background: #f3f6ff; border: 1px solid #dfe6ff; font-size: 14px; }
+.size-advice .big { font-size: 18px; }
+.size-advice.ghost { background: var(--soft); border-color: var(--line); display: block; }
+.chart { margin-top: 20px; } .chart h3 { font-size: 15px; margin: 0 0 8px; }
+.chart .table th, .chart .table td { text-align: center; padding: 8px 4px; }
+.look-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 860px) { .look-grid { grid-template-columns: 1fr 1fr; } }
+.look-card { display: grid; gap: 6px; }
+.look-link { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.look-buy select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; width: fit-content; }
+.look-buy .cart-item { align-items: center; }
+.desc-short { color: #555; line-height: 1.6; }
+fieldset.box { border: 1px solid #ddd; border-radius: 8px; padding: 12px; display: grid; gap: 10px; }
+fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
+.checks { display: flex; flex-wrap: wrap; gap: 14px; }

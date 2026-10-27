@@ -4,16 +4,25 @@ import { isAdultVerified } from "@/lib/adult";
 import Thumb from "@/components/Thumb";
 import AddToCart from "./AddToCart";
 import { won } from "@/lib/format";
+import Link from "next/link";
+import { parseSizeChart } from "@/lib/recommend";
+import { FITS, STYLES, labelOf, splitTags } from "@/lib/style";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const p = await prisma.product.findUnique({ where: { slug }, include: { category: true } });
+  const p = await prisma.product.findUnique({
+    where: { slug },
+    include: { category: true, lookItems: { include: { look: true } } },
+  });
   if (!p || !p.active) notFound();
   const adult = p.adultOnly || p.category.adultOnly;
   if (adult && !(await isAdultVerified())) redirect(`/adult-verify?next=/product/${slug}`);
 
   const price = p.salePrice && p.salePrice < p.price ? p.salePrice : p.price;
   const options = p.options.split(",").map((s) => s.trim()).filter(Boolean);
+  const chart = parseSizeChart(p.sizeChart);
+  const tags = [...splitTags(p.styles).map((s) => labelOf(STYLES, s)), p.fit ? labelOf(FITS, p.fit) : ""].filter(Boolean);
+  const looks = p.lookItems.map((li) => li.look).filter((l) => l.active);
 
   return (
     <div className="detail">
@@ -28,8 +37,27 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           item={{ productId: p.id, slug: p.slug, name: p.name, price, adultOnly: adult, imageUrl: p.imageUrl }}
           options={options}
           stock={p.stock}
+          fit={p.fit}
         />
+        {tags.length > 0 && (
+          <div className="tags mt-s">{tags.map((t) => <span key={t} className="tag">{t}</span>)}</div>
+        )}
+        {chart && (
+          <div className="chart">
+            <h3>실측 사이즈 (cm)</h3>
+            <table className="table">
+              <thead><tr>{chart.head.map((h) => <th key={h}>{h}</th>)}</tr></thead>
+              <tbody>{chart.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+            </table>
+          </div>
+        )}
         <div className="desc">{p.description}</div>
+        {looks.length > 0 && (
+          <div className="mt">
+            <h3>이 상품이 들어간 코디</h3>
+            {looks.map((l) => <Link key={l.id} href={`/looks/${l.slug}`} className="look-link">{l.title} →</Link>)}
+          </div>
+        )}
       </div>
     </div>
   );

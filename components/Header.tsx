@@ -16,6 +16,8 @@ export default async function Header() {
           {SITE.name}
         </Link>
         <nav className="cats">
+          <Link href="/for-you" className="hl">추천</Link>
+          <Link href="/looks">코디</Link>
           {cats.map((c) => (
             <Link key={c.id} href={`/category/${c.slug}`}>
               {c.name}

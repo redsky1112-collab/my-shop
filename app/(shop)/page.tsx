@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import ProductCard from "@/components/ProductCard";
+import ForYou from "@/components/ForYou";
+import { getRecProducts } from "@/lib/catalog";
 
 export default async function Home() {
   const adultOk = await isAdultVerified();
@@ -10,12 +12,15 @@ export default async function Home() {
     orderBy: { createdAt: "desc" },
     take: 24,
   });
+  const recProducts = await getRecProducts();
   return (
     <>
       <section className="hero">
         <h1>이번 시즌 신상품</h1>
         <p className="muted">5만원 이상 무료배송</p>
       </section>
+      <ForYou products={recProducts} compact />
+      <h2 className="section-title">신상품</h2>
       <div className="grid">
         {products.map((p) => (
           <ProductCard key={p.id} p={p} adult={false} adultOk={adultOk} />

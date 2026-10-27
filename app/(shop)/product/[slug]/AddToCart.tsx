@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart, CartItem } from "@/components/CartProvider";
+import SizeAdvice from "@/components/SizeAdvice";
 
 export default function AddToCart({
   item,
   options,
   stock,
+  fit = "",
 }: {
   item: Omit<CartItem, "option" | "quantity">;
   options: string[];
   stock: number;
+  fit?: string;
 }) {
   const { add } = useCart();
   const router = useRouter();
@@ -30,6 +33,9 @@ export default function AddToCart({
 
   return (
     <div className="buy">
+      {options.length > 0 && !item.adultOnly && (
+        <SizeAdvice options={options.join(",")} fit={fit} onPick={(s) => { setOption(s); setMsg(""); }} />
+      )}
       {options.length > 0 && (
         <select value={option} onChange={(e) => setOption(e.target.value)}>
           <option value="">옵션 선택</option>
