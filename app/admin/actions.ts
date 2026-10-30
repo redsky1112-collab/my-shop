@@ -128,6 +128,42 @@ export async function updateCategory(fd: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function saveBanner(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  const id = int(fd.get("id"));
+  const link = String(fd.get("link") || "").trim();
+  const data = {
+    imageUrl: String(fd.get("imageUrl") || "").trim(),
+    tagline: String(fd.get("tagline") || "").trim().slice(0, 60),
+    title: String(fd.get("title") || "").trim().slice(0, 60),
+    sub: String(fd.get("sub") || "").trim().slice(0, 100),
+    // 우리 사이트 안 주소만 허용
+    link: link.startsWith("/") && !link.startsWith("//") ? link : "",
+    sort: int(fd.get("sort")),
+    active: fd.get("active") === "on",
+  };
+  if (!data.imageUrl) return { error: "배너 사진을 올려 주세요." };
+  try {
+    if (id) await prisma.banner.update({ where: { id }, data });
+    else {
+      if ((await prisma.banner.count({ where: { active: true } })) >= 3 && data.active) {
+        return { error: "노출 중인 배너는 최대 3개예요. 기존 배너를 숨기거나 지운 뒤 추가해 주세요." };
+      }
+      await prisma.banner.create({ data });
+    }
+  } catch (e) {
+    return { error: dbError(e) };
+  }
+  revalidatePath("/", "layout");
+  redirect("/admin/banners");
+}
+
+export async function deleteBanner(fd: FormData) {
+  await requireAdmin();
+  await prisma.banner.deleteMany({ where: { id: int(fd.get("id")) } });
+  revalidatePath("/", "layout");
+}
+
 export async function saveLook(fd: FormData): Promise<SaveResult> {
   await requireAdmin();
   const id = int(fd.get("id"));

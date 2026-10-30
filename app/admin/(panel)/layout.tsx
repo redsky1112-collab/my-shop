@@ -12,6 +12,7 @@ export default async function Panel({ children }: { children: React.ReactNode })
         <Link href="/admin/orders">주문</Link>
         <Link href="/admin/products">상품</Link>
         <Link href="/admin/looks">코디</Link>
+        <Link href="/admin/banners">메인 배너</Link>
         <Link href="/admin/categories">카테고리</Link>
         <Link href="/" target="_blank">쇼핑몰 보기</Link>
         <form action={logout}><button className="link">로그아웃</button></form>

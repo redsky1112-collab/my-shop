@@ -69,6 +69,19 @@ model LookItem {
   sort      Int     @default(0)
 }
 
+// 첫 화면 메인 배너 (모델 사진 슬라이드)
+model Banner {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  tagline   String   @default("") // 작은 영문 문구 (예: CONTEMPORARY LOOK FOR 3040)
+  title     String   @default("") // 큰 제목
+  sub       String   @default("") // 한 줄 설명
+  link      String   @default("") // 누르면 이동할 주소 (예: /category/outer)
+  sort      Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
 // 관리자가 업로드한 이미지 (별도 저장소 없이 DB에 보관, /img/{id} 로 제공)
 // id는 추측 불가능한 랜덤 값이라 성인 상품 이미지 주소를 짐작해서 열 수 없음
 model Image {

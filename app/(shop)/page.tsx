@@ -5,6 +5,7 @@ import ForYou from "@/components/ForYou";
 import { getRecProducts } from "@/lib/catalog";
 import Link from "next/link";
 import { BRAND } from "@/lib/site";
+import HeroSlider from "@/components/HeroSlider";
 
 export default async function Home() {
   const adultOk = await isAdultVerified();
@@ -15,8 +16,15 @@ export default async function Home() {
     take: 24,
   });
   const recProducts = await getRecProducts();
+  const banners = await prisma.banner.findMany({
+    where: { active: true },
+    orderBy: [{ sort: "asc" }, { id: "asc" }],
+    take: 3,
+    select: { id: true, imageUrl: true, tagline: true, title: true, sub: true, link: true },
+  });
   return (
     <>
+      {banners.length > 0 ? <HeroSlider slides={banners} /> : (
       <section className="hero">
         <p className="hero-tag">{BRAND.tagline}</p>
         <h1 className="hero-title">{BRAND.headline}</h1>
@@ -26,6 +34,7 @@ export default async function Home() {
           <Link href="/about" className="btn ghost">브랜드 이야기</Link>
         </div>
       </section>
+      )}
       <ForYou products={recProducts} compact />
       <h2 className="section-title">신상품</h2>
       <div className="grid">
