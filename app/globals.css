@@ -269,3 +269,7 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .line-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 14px; }
 .line-section-head h2 { font-family: var(--serif); font-weight: 400; font-size: 20px; letter-spacing: .04em; color: var(--green); margin: 0; }
+
+.quiz-welcome { background: var(--green); color: #fff; border-radius: 8px; padding: 16px 18px; margin-bottom: 18px; display: grid; gap: 4px; }
+.quiz-welcome p { margin: 0; font-size: 13px; color: var(--sand); line-height: 1.6; }
+.quiz-welcome .link { color: #fff; justify-self: start; margin-top: 4px; }

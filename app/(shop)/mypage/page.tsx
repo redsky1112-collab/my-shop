@@ -27,6 +27,12 @@ export default async function MyPage() {
         <div><span>로그인</span><span>{PROVIDER_LABEL[user.provider] || user.provider}</span></div>
         {user.email && <div><span>이메일</span><span>{user.email}</span></div>}
         <div><span>가입일</span><span>{user.createdAt.toLocaleDateString("ko-KR")}</span></div>
+        <div>
+          <span>스타일 진단</span>
+          {user.styleProfile
+            ? <span><Link href="/for-you" className="link">맞춤 추천 보기</Link> · <Link href="/style-quiz?next=/mypage" className="link">다시 진단</Link></span>
+            : <Link href="/style-quiz?next=/for-you" className="link">진단하기 (1분)</Link>}
+        </div>
       </div>
 
       <h3>주문 내역</h3>

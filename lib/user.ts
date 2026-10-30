@@ -60,6 +60,11 @@ export async function getUser() {
   return prisma.user.findUnique({ where: { id: t.uid } });
 }
 
+/** 로그인 후 이동할 곳: 스타일 진단을 안 했으면 진단 먼저 */
+export function afterLoginPath(user: { styleProfile: string }, next: string) {
+  return user.styleProfile ? next : `/style-quiz?welcome=1&next=${encodeURIComponent(next)}`;
+}
+
 export function makeUserToken(uid: number) {
   return signToken({ uid, exp: Date.now() + USER_TTL_MS });
 }

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { cookieOpts } from "@/lib/adult";
-import { USER_COOKIE, USER_TTL_MS, demoLoginEnabled, getUser, makeUserToken, safeNext, upsertSocialUser } from "@/lib/user";
+import { USER_COOKIE, USER_TTL_MS, afterLoginPath, demoLoginEnabled, getUser, makeUserToken, safeNext, upsertSocialUser } from "@/lib/user";
 
 export async function logout() {
   (await cookies()).delete(USER_COOKIE);
@@ -21,7 +21,7 @@ export async function demoLogin(fd: FormData) {
   const user = await upsertSocialUser("demo", crypto.randomUUID(), { name: `테스트회원${n}` });
   (await cookies()).set(USER_COOKIE, makeUserToken(user.id), { ...cookieOpts, maxAge: USER_TTL_MS / 1000 });
   revalidatePath("/", "layout");
-  redirect(safeNext(fd.get("next")));
+  redirect(afterLoginPath(user, safeNext(fd.get("next"))));
 }
 
 /** 회원 탈퇴: 회원 정보 삭제, 주문 기록은 법정 보관을 위해 연결만 끊고 남김 */

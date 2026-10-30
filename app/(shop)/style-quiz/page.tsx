@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BODY_TYPES, BUDGETS, FITS, GENDERS, STYLES, StyleProfile, TOP_SIZES, WAISTS } from "@/lib/style";
 import { loadProfile, saveProfile } from "@/components/useStyleProfile";
 
@@ -10,8 +10,14 @@ const EMPTY: StyleProfile = {
   styles: [], fit: "", budget: -1, savedAt: 0,
 };
 
-export default function StyleQuiz() {
+function StyleQuiz() {
   const router = useRouter();
+  const sp = useSearchParams();
+  const welcome = sp.get("welcome") === "1";
+  const rawNext = sp.get("next") || "";
+  // 로그인 직후면 진단 → 맞춤 추천 화면으로 (원래 가려던 곳이 주문서 등이면 그쪽으로)
+  const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") && rawNext !== "/mypage" ? rawNext : "/for-you";
+  const [saving, setSaving] = useState(false);
   const [p, setP] = useState<StyleProfile>(EMPTY);
   const [step, setStep] = useState(0);
 
@@ -116,14 +122,22 @@ export default function StyleQuiz() {
   ];
 
   const cur = steps[step];
-  const next = () => {
+  const next = async () => {
     if (step < steps.length - 1) return setStep(step + 1);
-    saveProfile({ ...p, savedAt: Date.now() });
-    router.push("/for-you");
+    setSaving(true);
+    await saveProfile({ ...p, savedAt: Date.now() });
+    router.push(nextPath);
   };
 
   return (
     <div className="quiz">
+      {welcome && step === 0 && (
+        <div className="quiz-welcome">
+          <b>가입을 환영해요!</b>
+          <p>6가지만 알려주시면 체형과 취향에 맞는 옷과 사이즈를 골라 드릴게요. (1분)</p>
+          <button type="button" className="link" onClick={() => router.push(nextPath)}>나중에 할게요</button>
+        </div>
+      )}
       <div className="progress"><div style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
       <p className="muted small">{step + 1} / {steps.length}</p>
       <h1 className="quiz-title">{cur.title}</h1>
@@ -131,8 +145,16 @@ export default function StyleQuiz() {
       <div className="quiz-body">{cur.body}</div>
       <div className="row quiz-nav">
         {step > 0 && <button className="btn outline" onClick={() => setStep(step - 1)}>이전</button>}
-        <button className="btn" disabled={!cur.ok} onClick={next}>{step === steps.length - 1 ? "추천 받기" : "다음"}</button>
+        <button className="btn" disabled={!cur.ok || saving} onClick={next}>{step === steps.length - 1 ? (saving ? "저장 중..." : "추천 받기") : "다음"}</button>
       </div>
     </div>
+  );
+}
+
+export default function StyleQuizPage() {
+  return (
+    <Suspense>
+      <StyleQuiz />
+    </Suspense>
   );
 }

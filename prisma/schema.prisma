@@ -88,6 +88,7 @@ model User {
   name        String   @default("")
   email       String   @default("")
   phone       String   @default("")
+  styleProfile String  @default("") // 스타일 진단 결과(JSON). 비어 있으면 로그인 직후 진단으로 안내
   createdAt   DateTime @default(now())
   lastLoginAt DateTime @default(now())
   orders      Order[]

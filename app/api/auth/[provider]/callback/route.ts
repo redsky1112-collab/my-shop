@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
-  PROVIDERS, STATE_COOKIE, USER_COOKIE, USER_TTL_MS, isProvider, makeUserToken, providerEnabled, upsertSocialUser,
+  PROVIDERS, STATE_COOKIE, USER_COOKIE, USER_TTL_MS, afterLoginPath, isProvider, makeUserToken, providerEnabled, upsertSocialUser,
   type Provider,
 } from "@/lib/user";
 import { cookieOpts } from "@/lib/adult";
@@ -73,7 +73,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
   try {
     const p = await fetchProfile(provider, code, state, `${url.origin}/api/auth/${provider}/callback`);
     const user = await upsertSocialUser(provider, p.id, p);
-    const res = NextResponse.redirect(new URL(saved.next || "/mypage", url.origin));
+    const res = NextResponse.redirect(new URL(afterLoginPath(user, saved.next || "/mypage"), url.origin));
     res.cookies.delete(STATE_COOKIE);
     res.cookies.set(USER_COOKIE, makeUserToken(user.id), { ...cookieOpts, maxAge: USER_TTL_MS / 1000 });
     return res;
