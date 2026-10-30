@@ -131,12 +131,13 @@ export async function updateCategory(fd: FormData) {
 export async function saveLook(fd: FormData): Promise<SaveResult> {
   await requireAdmin();
   const id = int(fd.get("id"));
-  const productIds = fd.getAll("productIds").map((v) => int(v)).filter((n) => n > 0);
+  const productIds = [...new Set(fd.getAll("productIds").map((v) => int(v)).filter((n) => n > 0))];
   const data = {
     title: String(fd.get("title") || "").trim(),
     slug: slugOr(fd.get("slug"), "look"),
     description: String(fd.get("description") || ""),
     imageUrl: String(fd.get("imageUrl") || "").trim() || null,
+    line: lineOf(String(fd.get("line") || "")) ? String(fd.get("line")) : "",
     gender: ["M", "F", "U"].includes(String(fd.get("gender"))) ? String(fd.get("gender")) : "U",
     styles: fd.getAll("styles").map(String).join(","),
     active: fd.get("active") === "on",

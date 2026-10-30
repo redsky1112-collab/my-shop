@@ -51,6 +51,7 @@ model Look {
   slug        String     @unique
   description String     @default("")
   imageUrl    String?
+  line        String     @default("") // 브랜드 라인 (formal/smart/lounge)
   gender      String     @default("U")
   styles      String     @default("")
   active      Boolean    @default(true)

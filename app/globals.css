@@ -274,3 +274,19 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .quiz-welcome p { margin: 0; font-size: 13px; color: var(--sand); line-height: 1.6; }
 .quiz-welcome .link { color: #fff; justify-self: start; margin-top: 4px; }
 .form-error { background: #fdecea; color: #b42318; border: 1px solid #f5c2bd; border-radius: 6px; padding: 10px 12px; margin: 0; font-size: 14px; }
+
+/* 코디 상품 선택기 */
+.picked { display: flex; flex-wrap: wrap; gap: 6px; }
+.picked .tag { border: 0; cursor: pointer; font-size: 12px; padding: 5px 9px; }
+.pick-list { display: grid; gap: 6px; }
+.pick-list.dim { opacity: .7; }
+.pick { display: flex; align-items: center; gap: 10px; text-align: left; padding: 8px; border: 1px solid var(--line);
+  border-radius: 8px; background: #fff; cursor: pointer; width: 100%; }
+.pick.on { border: 2px solid var(--green); background: #f4f8f6; }
+.pick img, .pick-ph { width: 44px; height: 58px; object-fit: cover; border-radius: 4px; flex: none; background: var(--soft);
+  display: flex; align-items: center; justify-content: center; color: #aaa; font-weight: 700; }
+.pick-text { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.pick-text b { font-weight: 600; font-size: 14px; }
+.pick-no { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; flex: none; color: var(--muted); }
+.pick.on .pick-no { background: var(--green); border-color: var(--green); color: #fff; font-weight: 700; }

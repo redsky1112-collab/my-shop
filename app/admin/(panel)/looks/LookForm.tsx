@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/db";
 import ActionForm, { SubmitButton } from "@/components/ActionForm";
 import { saveLook } from "../../actions";
-import { GENDERS, STYLES, splitTags } from "@/lib/style";
+import { splitTags } from "@/lib/style";
+import LookPicker from "./LookPicker";
 import ImageUpload from "@/components/ImageUpload";
 
 type L = {
   id: number; title: string; slug: string; description: string; imageUrl: string | null;
-  gender: string; styles: string; active: boolean; sort: number; items: { productId: number }[];
+  line: string; gender: string; styles: string; active: boolean; sort: number; items: { productId: number; sort: number }[];
 };
 
 export default async function LookForm({ l }: { l?: L }) {
@@ -15,7 +16,6 @@ export default async function LookForm({ l }: { l?: L }) {
     include: { category: true },
     orderBy: [{ categoryId: "asc" }, { name: "asc" }],
   });
-  const sel = new Set(l?.items.map((i) => i.productId));
   return (
     <ActionForm action={saveLook} className="form">
       <input type="hidden" name="id" value={l?.id ?? ""} />
@@ -23,30 +23,19 @@ export default async function LookForm({ l }: { l?: L }) {
       <label>주소용 영문 이름 (선택, 비우면 자동 생성)<input name="slug" defaultValue={l?.slug} pattern="[a-zA-Z0-9\-]+" placeholder="monday-office" /></label>
       <label>설명<textarea name="description" rows={3} defaultValue={l?.description} /></label>
       <ImageUpload defaultValue={l?.imageUrl} label="코디 대표 이미지" />
-      <div className="row">
-        <label>성별
-          <select name="gender" defaultValue={l?.gender ?? "U"}>
-            {GENDERS.map((g) => <option key={g.key} value={g.key}>{g.key === "U" ? "공용" : g.label}</option>)}
-          </select>
-        </label>
-        <label>노출 순서<input name="sort" type="number" defaultValue={l?.sort ?? 0} /></label>
-      </div>
-      <div className="checks">
-        {STYLES.map((s) => (
-          <label key={s.key} className="check">
-            <input type="checkbox" name="styles" value={s.key} defaultChecked={splitTags(l?.styles ?? "").includes(s.key)} /> {s.label}
-          </label>
-        ))}
-      </div>
-      <fieldset className="box">
-        <legend>코디에 넣을 상품 (2개 이상, 고른 순서와 관계없이 아래 목록 순서로 노출)</legend>
-        {products.map((p) => (
-          <label key={p.id} className="check">
-            <input type="checkbox" name="productIds" value={p.id} defaultChecked={sel.has(p.id)} />
-            <span className="muted small">[{p.category.name}]</span> {p.name}
-          </label>
-        ))}
-      </fieldset>
+      <label>노출 순서<input name="sort" type="number" defaultValue={l?.sort ?? 0} /></label>
+      <LookPicker
+        products={products.map((p) => ({
+          id: p.id, name: p.name, category: p.category.name, line: p.line, gender: p.gender, styles: p.styles,
+          imageUrl: p.imageUrl, price: p.salePrice && p.salePrice < p.price ? p.salePrice : p.price,
+        }))}
+        init={{
+          gender: l?.gender ?? "U",
+          line: l?.line ?? "",
+          styles: splitTags(l?.styles ?? ""),
+          selected: [...(l?.items ?? [])].sort((a, b) => a.sort - b.sort).map((i) => i.productId),
+        }}
+      />
       <label className="check"><input type="checkbox" name="active" defaultChecked={l?.active ?? true} /> 노출</label>
       <SubmitButton />
     </ActionForm>
