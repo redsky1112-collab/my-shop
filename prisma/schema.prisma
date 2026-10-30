@@ -66,6 +66,18 @@ model LookItem {
   sort      Int     @default(0)
 }
 
+// 관리자가 업로드한 이미지 (별도 저장소 없이 DB에 보관, /img/{id} 로 제공)
+// id는 추측 불가능한 랜덤 값이라 성인 상품 이미지 주소를 짐작해서 열 수 없음
+model Image {
+  id        String   @id @default(cuid())
+  mime      String
+  data      Bytes
+  size      Int
+  width     Int      @default(0)
+  height    Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 model Order {
   id          Int         @id @default(autoincrement())
   orderNo     String      @unique

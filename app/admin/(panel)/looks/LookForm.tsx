@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { saveLook } from "../../actions";
 import { GENDERS, STYLES, splitTags } from "@/lib/style";
+import ImageUpload from "@/components/ImageUpload";
 
 type L = {
   id: number; title: string; slug: string; description: string; imageUrl: string | null;
@@ -20,7 +21,7 @@ export default async function LookForm({ l }: { l?: L }) {
       <label>코디명<input name="title" defaultValue={l?.title} required placeholder="월요일 출근룩" /></label>
       <label>주소용 영문 slug<input name="slug" defaultValue={l?.slug} required pattern="[a-zA-Z0-9\-]+" placeholder="monday-office" /></label>
       <label>설명<textarea name="description" rows={3} defaultValue={l?.description} /></label>
-      <label>대표 이미지 URL<input name="imageUrl" defaultValue={l?.imageUrl ?? ""} /></label>
+      <ImageUpload defaultValue={l?.imageUrl} label="코디 대표 이미지" />
       <div className="row">
         <label>성별
           <select name="gender" defaultValue={l?.gender ?? "U"}>
