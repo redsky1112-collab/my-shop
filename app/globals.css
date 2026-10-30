@@ -158,3 +158,15 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .upload-empty { display: grid; gap: 6px; text-align: center; padding: 10px; white-space: pre-line; }
 .upload-busy { position: absolute; inset: 0; background: rgba(255,255,255,.8); display: flex; align-items: center;
   justify-content: center; font-weight: 700; }
+
+/* 로그인 · 마이페이지 */
+.account-link { font-size: 14px; white-space: nowrap; }
+.login { max-width: 380px; margin: 40px auto; text-align: center; }
+.login-btns { display: grid; gap: 10px; margin-top: 20px; }
+.btn-social { display: block; padding: 14px; border-radius: 6px; font-weight: 700; font-size: 15px; text-align: center; }
+.btn-social.kakao { background: #fee500; color: rgba(0,0,0,.85); }
+.btn-social.naver { background: #03c75a; color: #fff; }
+.btn-social.off { opacity: .4; cursor: not-allowed; }
+.my-orders { display: grid; gap: 10px; }
+.my-order { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 6px; }
+.withdraw summary { list-style: none; }

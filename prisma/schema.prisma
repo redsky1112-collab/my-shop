@@ -78,9 +78,26 @@ model Image {
   createdAt DateTime @default(now())
 }
 
+// 회원 (카카오·네이버 로그인). 비회원 주문도 계속 가능
+model User {
+  id          Int      @id @default(autoincrement())
+  provider    String   // kakao / naver / demo
+  providerId  String
+  name        String   @default("")
+  email       String   @default("")
+  phone       String   @default("")
+  createdAt   DateTime @default(now())
+  lastLoginAt DateTime @default(now())
+  orders      Order[]
+
+  @@unique([provider, providerId])
+}
+
 model Order {
   id          Int         @id @default(autoincrement())
   orderNo     String      @unique
+  userId      Int?        // 회원 주문이면 연결 (탈퇴 시 연결만 끊고 주문 기록은 보관)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   // PENDING(결제대기) PAID(결제완료) SHIPPING(배송중) DELIVERED(배송완료) CANCELED(취소)
   status      String      @default("PENDING")
   buyerName   String

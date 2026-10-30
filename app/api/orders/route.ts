@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import { newOrderNo, onlyDigits, shippingFor } from "@/lib/format";
 import { SHIPPING } from "@/lib/site";
+import { getUser } from "@/lib/user";
 
 type Body = {
   buyerName: string; buyerPhone: string; buyerEmail: string;
@@ -61,9 +62,11 @@ export async function POST(req: Request) {
     ? `주문상품 ${lines.length}건`
     : lines.length > 1 ? `${lines[0].name} 외 ${lines.length - 1}건` : lines[0].name;
 
+  const user = await getUser(); // 로그인 상태면 회원 주문으로 연결 (비회원도 주문 가능)
   const order = await prisma.order.create({
     data: {
       orderNo: newOrderNo(),
+      userId: user?.id ?? null,
       buyerName, buyerPhone, buyerEmail, recipient, phone, zipcode, address1, address2, memo,
       itemsTotal, shippingFee, total: itemsTotal + shippingFee,
       orderName: orderName.slice(0, 100),

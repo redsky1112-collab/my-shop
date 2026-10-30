@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
+import { getUser } from "@/lib/user";
 import CartBadge from "./CartBadge";
 import { SITE } from "@/lib/site";
 
 export default async function Header() {
-  const [cats, adultOk] = await Promise.all([
+  const [cats, adultOk, user] = await Promise.all([
     prisma.category.findMany({ orderBy: { sort: "asc" } }),
     isAdultVerified(),
+    getUser(),
   ]);
   return (
     <header className="header">
@@ -25,6 +27,7 @@ export default async function Header() {
             </Link>
           ))}
         </nav>
+        <Link href={user ? "/mypage" : "/login"} className="account-link">{user ? "마이" : "로그인"}</Link>
         <CartBadge />
       </div>
     </header>

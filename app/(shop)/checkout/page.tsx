@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
@@ -24,6 +25,23 @@ export default function CheckoutPage() {
   const [agree, setAgree] = useState(false);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [member, setMember] = useState<boolean | null>(null);
+
+  // 로그인 회원이면 주문자 정보 자동 채우기 (이미 입력한 칸은 덮어쓰지 않음)
+  useEffect(() => {
+    fetch("/api/me", { cache: "no-store" })
+      .then((r) => r.json())
+      .then(({ user }) => {
+        setMember(!!user);
+        if (user) setF((p) => ({
+          ...p,
+          buyerName: p.buyerName || user.name || "",
+          buyerEmail: p.buyerEmail || user.email || "",
+          buyerPhone: p.buyerPhone || user.phone || "",
+        }));
+      })
+      .catch(() => setMember(false));
+  }, []);
 
   const itemsTotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const ship = shippingFor(itemsTotal, SHIPPING.fee, SHIPPING.freeOver);
@@ -66,6 +84,11 @@ export default function CheckoutPage() {
     <>
       <Script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="afterInteractive" />
       <h1 className="page-title">주문서</h1>
+      {member === false && (
+        <p className="small muted">
+          <Link href="/login?next=/checkout" className="link">로그인</Link>하면 정보가 자동으로 채워지고 마이페이지에서 주문 내역을 볼 수 있어요. (비회원 주문도 가능)
+        </p>
+      )}
       <form className="form" onSubmit={submit}>
         <h3>주문자</h3>
         <input required placeholder="이름" value={f.buyerName} onChange={set("buyerName")} />
