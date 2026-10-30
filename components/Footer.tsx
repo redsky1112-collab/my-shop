@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { SITE } from "@/lib/site";
+import { SITE, BRAND } from "@/lib/site";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="wrap">
+        <div className="footer-brand"><Logo /><span>{BRAND.slogan}</span></div>
         <nav className="footer-links">
+          <Link href="/about">브랜드 소개</Link>
           <Link href="/policy/terms">이용약관</Link>
           <Link href="/policy/privacy">
             <b>개인정보처리방침</b>

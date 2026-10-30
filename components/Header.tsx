@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import { getUser } from "@/lib/user";
 import CartBadge from "./CartBadge";
-import { SITE } from "@/lib/site";
+import Logo from "./Logo";
 
 export default async function Header() {
   const [cats, adultOk, user] = await Promise.all([
@@ -14,10 +14,11 @@ export default async function Header() {
   return (
     <header className="header">
       <div className="wrap header-row">
-        <Link href="/" className="logo">
-          {SITE.name}
+        <Link href="/" className="logo" aria-label="DUOLOGUE 홈">
+          <Logo />
         </Link>
-        <nav className="cats">
+        {/* PC: 한 줄 가운데 / 휴대폰: 아래 줄로 내려가 좌우로 밀어서 보는 메뉴 */}
+        <nav className="cats" aria-label="카테고리">
           <Link href="/for-you" className="hl">추천</Link>
           <Link href="/looks">코디</Link>
           {cats.map((c) => (
@@ -26,9 +27,12 @@ export default async function Header() {
               {c.adultOnly && !adultOk && <span className="r19-mini">19</span>}
             </Link>
           ))}
+          <Link href="/about">ABOUT</Link>
         </nav>
-        <Link href={user ? "/mypage" : "/login"} className="account-link">{user ? "마이" : "로그인"}</Link>
-        <CartBadge />
+        <div className="header-actions">
+          <Link href={user ? "/mypage" : "/login"} className="account-link">{user ? "마이" : "로그인"}</Link>
+          <CartBadge />
+        </div>
       </div>
     </header>
   );

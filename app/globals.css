@@ -1,9 +1,15 @@
 :root {
-  --fg: #111; --muted: #888; --line: #e8e8e8; --bg: #fff; --soft: #f6f6f6;
-  --brand: #111; --accent: #e5484d;
+  /* DUOLOGUE 브랜드 컬러 (가이드 V1.0) */
+  --green: #0F382C;   /* Deep Bottle Green — 메인 */
+  --black: #1E1E1E;   /* Classic Black — 서브 */
+  --sand: #E2D7C5;    /* Warm Sand Beige — 포인트 */
+  --gold: #C9A23F;    /* 로고 따옴표 금색 */
+  --fg: var(--black); --muted: #8a857c; --line: #e7e2d9; --bg: #FAF8F4; --soft: #F1EDE5;
+  --brand: var(--green); --accent: #c2410c; /* 할인·19 표시 */
+  --serif: "Didot", "Bodoni 72", "Noto Serif KR", Georgia, "Times New Roman", serif;
 }
 * { box-sizing: border-box; }
-body { margin: 0; color: var(--fg); background: var(--bg);
+body { margin: 0; color: var(--fg); background: var(--bg); word-break: keep-all; overflow-wrap: anywhere;
   font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
@@ -13,14 +19,17 @@ button, input, select, textarea { font: inherit; }
 .error { color: var(--accent); }
 .page-title { font-size: 22px; margin: 8px 0 20px; }
 
-.header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 10; }
+.header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 10; }
 .header-row { display: flex; align-items: center; gap: 20px; height: 60px; }
-.logo { font-weight: 800; font-size: 20px; letter-spacing: 1px; }
-.cats { display: flex; gap: 16px; flex: 1; overflow-x: auto; white-space: nowrap; }
+.logo { display: flex; align-items: center; flex: none; }
+.cats { display: flex; gap: 18px; flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 14px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.cats::-webkit-scrollbar { display: none; }
+.header-actions { display: flex; gap: 14px; align-items: center; flex: none; }
 .cart-link { position: relative; font-size: 14px; }
 .badge { margin-left: 4px; background: var(--brand); color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 12px; }
 
-.hero { padding: 32px 0 20px; } .hero h1 { margin: 0 0 6px; }
+.hero { background: var(--green); color: #fff; border-radius: 4px; padding: 56px 24px; text-align: center; margin-bottom: 20px; }
 .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 @media (max-width: 860px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
 .card { display: block; }
@@ -101,37 +110,37 @@ button, input, select, textarea { font: inherit; }
 .tabs { display: flex; gap: 14px; margin-bottom: 14px; font-size: 14px; flex-wrap: wrap; }
 
 /* ── 스타일 맞춤 ── */
-.cats .hl { font-weight: 700; color: var(--accent); }
+.cats .hl { font-weight: 700; color: var(--green); }
 .section-title { font-size: 18px; margin: 32px 0 14px; }
 .mt { margin-top: 28px; } .mt-s { margin-top: 12px; }
-.quiz-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #111; color: #fff;
+.quiz-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--green); color: #fff;
   border-radius: 12px; padding: 18px 20px; margin: 4px 0 8px; }
-.quiz-banner b { font-size: 17px; } .quiz-banner p { margin: 4px 0 0; font-size: 13px; color: #ccc; }
+.quiz-banner b { font-size: 17px; } .quiz-banner p { margin: 4px 0 0; font-size: 13px; color: var(--sand); }
 .quiz-banner .arrow { font-size: 22px; }
 .foryou { margin: 8px 0 12px; } .foryou h2 { font-size: 18px; margin: 8px 0 14px; }
 .foryou .more { margin-top: 14px; }
 .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .tag { font-size: 11px; padding: 2px 7px; border-radius: 10px; background: var(--soft); color: #555; }
-.tag.strong { background: #111; color: #fff; }
+.tag.strong { background: var(--green); color: #fff; }
 
 .quiz { max-width: 520px; margin: 0 auto; padding-top: 8px; }
 .progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
-.progress div { height: 100%; background: #111; transition: width .25s; }
+.progress div { height: 100%; background: var(--green); transition: width .25s; }
 .quiz-title { font-size: 22px; margin: 6px 0 6px; }
 .quiz-body { margin: 22px 0 28px; display: grid; gap: 10px; }
 .quiz-nav .btn { padding: 15px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; } .chips.col { flex-direction: column; }
 .chip { padding: 11px 16px; border: 1px solid #ddd; border-radius: 24px; background: #fff; cursor: pointer; font-size: 15px; }
-.chip.on { background: #111; color: #fff; border-color: #111; }
+.chip.on { background: var(--green); color: #fff; border-color: var(--green); }
 .field { display: grid; gap: 6px; font-size: 13px; color: #555; }
 .field input { padding: 13px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; width: 100%; }
 .style-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .style-card { text-align: left; padding: 16px 14px; border: 1px solid #ddd; border-radius: 12px; background: #fff; cursor: pointer; display: grid; gap: 4px; }
 .style-card span { font-size: 12px; color: var(--muted); }
-.style-card.on { border: 2px solid #111; background: #fafafa; }
+.style-card.on { border: 2px solid var(--green); background: #fff; }
 
 .size-advice { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px;
-  border-radius: 10px; background: #f3f6ff; border: 1px solid #dfe6ff; font-size: 14px; }
+  border-radius: 10px; background: #f4efe6; border: 1px solid var(--sand); font-size: 14px; }
 .size-advice .big { font-size: 18px; }
 .size-advice.ghost { background: var(--soft); border-color: var(--line); display: block; }
 .chart { margin-top: 20px; } .chart h3 { font-size: 15px; margin: 0 0 8px; }
@@ -170,3 +179,55 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .my-orders { display: grid; gap: 10px; }
 .my-order { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 6px; }
 .withdraw summary { list-style: none; }
+
+/* ── DUOLOGUE 브랜드 ── */
+.brand-logo { display: inline-flex; align-items: center; gap: 8px; color: var(--green); }
+.brand-word { font-family: var(--serif); font-weight: 700; font-size: 19px; letter-spacing: .22em; line-height: 1; }
+.brand-logo.stacked { flex-direction: column; gap: 10px; }
+.brand-logo.stacked .brand-word { font-size: 30px; }
+.brand-sub { font-size: 10px; letter-spacing: .4em; opacity: .8; }
+.brand-logo.light { color: #fff; }
+.hero-tag { font-size: 11px; letter-spacing: .35em; color: var(--sand); margin: 0 0 12px; }
+.hero-title { font-family: var(--serif); font-weight: 400; font-size: 34px; margin: 0 0 12px; }
+.hero-lead { font-size: 14px; color: #e9e4da; margin: 0 auto; max-width: 420px; line-height: 1.7; }
+.hero-actions { display: flex; gap: 8px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+.btn.sand { background: var(--sand); border-color: var(--sand); color: var(--green); }
+.btn.ghost { background: transparent; border-color: rgba(255,255,255,.6); color: #fff; }
+.brand-sign { display: flex; align-items: center; gap: 10px; margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line);
+  font-family: var(--serif); color: var(--green); font-size: 15px; }
+.footer { background: var(--soft); }
+.footer-brand { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; font-size: 13px; color: var(--green); }
+.thumb, .thumb.placeholder { background: var(--soft); }
+.btn.outline, .chip, .style-card { background: #fff; }
+
+/* ABOUT */
+.about { max-width: 760px; margin: 0 auto; }
+.about-hero { background: var(--green); border-radius: 4px; padding: 64px 20px; display: flex; justify-content: center; }
+.about-quote { margin: 32px 0; padding: 22px 24px; border-left: 3px solid var(--green); background: #fff;
+  font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.8; }
+.about-h { font-size: 13px; letter-spacing: .3em; color: var(--green); margin: 40px 0 14px; }
+.about-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.about-card { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 20px; }
+.about-card h3 { margin: 6px 0 10px; font-size: 16px; color: var(--green); }
+.about-card p { margin: 0; line-height: 1.8; font-size: 14px; color: #444; }
+.about-no { font-family: var(--serif); color: var(--gold); font-size: 20px; }
+.about-slogan { text-align: center; font-family: var(--serif); color: var(--green); font-size: 18px; margin: 44px 0 18px; }
+
+/* ── 휴대폰 화면 ── */
+@media (max-width: 760px) {
+  /* 윗줄: 로고 · 로그인 · 장바구니 / 아랫줄: 카테고리 메뉴(좌우로 밀기) */
+  .header-row { flex-wrap: wrap; height: auto; gap: 0; padding-top: 12px; }
+  .logo { flex: 1; }
+  .brand-word { font-size: 17px; }
+  .cats { order: 3; flex: 0 0 100%; gap: 20px; padding: 12px 0 11px; margin-top: 10px; border-top: 1px solid var(--line);
+    mask-image: linear-gradient(to right, #000 88%, transparent); -webkit-mask-image: linear-gradient(to right, #000 88%, transparent); }
+  .main { padding-top: 16px; }
+  .hero { padding: 40px 18px; margin: 0 -16px 16px; border-radius: 0; }
+  .hero-title { font-size: 26px; }
+  .about-cards { grid-template-columns: 1fr; }
+  .about-hero { margin: 0 -16px; border-radius: 0; }
+  .about-quote { font-size: 16px; padding: 18px; }
+  .table { display: block; overflow-x: auto; white-space: nowrap; }
+  .admin-main { padding: 14px; }
+  .form input, .form select, .form textarea { font-size: 16px; } /* 아이폰 입력 시 자동 확대 방지 */
+}

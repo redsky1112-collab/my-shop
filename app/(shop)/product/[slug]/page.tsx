@@ -7,6 +7,8 @@ import { won } from "@/lib/format";
 import Link from "next/link";
 import { parseSizeChart } from "@/lib/recommend";
 import { FITS, STYLES, labelOf, splitTags } from "@/lib/style";
+import { QuoteMark } from "@/components/Logo";
+import { BRAND } from "@/lib/site";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -58,6 +60,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             {looks.map((l) => <Link key={l.id} href={`/looks/${l.slug}`} className="look-link">{l.title} →</Link>)}
           </div>
         )}
+        <div className="brand-sign">
+          <QuoteMark size={20} />
+          <span>{BRAND.slogan}</span>
+        </div>
       </div>
     </div>
   );
