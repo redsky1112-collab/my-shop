@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import ActionForm, { SubmitButton } from "@/components/ActionForm";
 import { saveLook } from "../../actions";
 import { GENDERS, STYLES, splitTags } from "@/lib/style";
 import ImageUpload from "@/components/ImageUpload";
@@ -16,10 +17,10 @@ export default async function LookForm({ l }: { l?: L }) {
   });
   const sel = new Set(l?.items.map((i) => i.productId));
   return (
-    <form action={saveLook} className="form">
+    <ActionForm action={saveLook} className="form">
       <input type="hidden" name="id" value={l?.id ?? ""} />
       <label>코디명<input name="title" defaultValue={l?.title} required placeholder="월요일 출근룩" /></label>
-      <label>주소용 영문 slug<input name="slug" defaultValue={l?.slug} required pattern="[a-zA-Z0-9\-]+" placeholder="monday-office" /></label>
+      <label>주소용 영문 이름 (선택, 비우면 자동 생성)<input name="slug" defaultValue={l?.slug} pattern="[a-zA-Z0-9\-]+" placeholder="monday-office" /></label>
       <label>설명<textarea name="description" rows={3} defaultValue={l?.description} /></label>
       <ImageUpload defaultValue={l?.imageUrl} label="코디 대표 이미지" />
       <div className="row">
@@ -47,7 +48,7 @@ export default async function LookForm({ l }: { l?: L }) {
         ))}
       </fieldset>
       <label className="check"><input type="checkbox" name="active" defaultChecked={l?.active ?? true} /> 노출</label>
-      <button className="btn">저장</button>
-    </form>
+      <SubmitButton />
+    </ActionForm>
   );
 }

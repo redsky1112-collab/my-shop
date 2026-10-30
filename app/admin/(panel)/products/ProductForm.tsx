@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import ActionForm, { SubmitButton } from "@/components/ActionForm";
 import { saveProduct } from "../../actions";
 import { FITS, GENDERS, STYLES, splitTags } from "@/lib/style";
 import ImageUpload from "@/components/ImageUpload";
@@ -13,7 +14,7 @@ type P = {
 export default async function ProductForm({ p }: { p?: P }) {
   const cats = await prisma.category.findMany({ orderBy: { sort: "asc" } });
   return (
-    <form action={saveProduct} className="form">
+    <ActionForm action={saveProduct} className="form">
       <input type="hidden" name="id" value={p?.id ?? ""} />
       <label>카테고리
         <select name="categoryId" defaultValue={p?.categoryId} required>
@@ -27,7 +28,7 @@ export default async function ProductForm({ p }: { p?: P }) {
         </select>
       </label>
       <label>상품명<input name="name" defaultValue={p?.name} required /></label>
-      <label>주소용 영문 slug (예: basic-tee)<input name="slug" defaultValue={p?.slug} required pattern="[a-zA-Z0-9\-]+" /></label>
+      <label>주소용 영문 이름 (선택, 비우면 자동 생성)<input name="slug" defaultValue={p?.slug} pattern="[a-zA-Z0-9\-]+" placeholder="예: wool-jacket" /></label>
       <div className="row">
         <label>정가<input name="price" type="number" min={1} defaultValue={p?.price} required /></label>
         <label>할인가 (선택)<input name="salePrice" type="number" min={0} defaultValue={p?.salePrice ?? ""} /></label>
@@ -65,7 +66,7 @@ export default async function ProductForm({ p }: { p?: P }) {
       <label>상세 설명<textarea name="description" rows={8} defaultValue={p?.description} /></label>
       <label className="check"><input type="checkbox" name="active" defaultChecked={p?.active ?? true} /> 판매중</label>
       <label className="check"><input type="checkbox" name="adultOnly" defaultChecked={p?.adultOnly} /> 성인 상품 (성인 카테고리는 자동 적용)</label>
-      <button className="btn">저장</button>
-    </form>
+      <SubmitButton />
+    </ActionForm>
   );
 }

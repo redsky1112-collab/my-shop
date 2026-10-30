@@ -23,21 +23,38 @@ export async function logout() {
   redirect("/admin/login");
 }
 
+type SaveResult = { error: string } | void;
+
+/** 비어 있으면 자동 주소 생성 (p-xxxxxx) */
+const slugOr = (v: FormDataEntryValue | null, prefix: string) => {
+  const s = String(v || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return s || `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
+/** DB 오류를 사람이 읽을 수 있는 문구로 */
+function dbError(e: unknown): string {
+  const code = (e as { code?: string })?.code;
+  if (code === "P2002") return "같은 주소용 영문 이름(slug)이 이미 있어요. 다른 이름을 쓰거나 비워 두세요.";
+  if (code === "P2003") return "선택한 카테고리나 상품을 찾을 수 없어요. 새로고침 후 다시 시도해 주세요.";
+  console.error("[admin save]", e);
+  return "저장 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.";
+}
+
 const int = (v: FormDataEntryValue | null) => {
   const n = Math.floor(Number(v));
   return Number.isFinite(n) ? n : 0;
 };
 
-export async function saveProduct(fd: FormData) {
+export async function saveProduct(fd: FormData): Promise<SaveResult> {
   await requireAdmin();
   const id = int(fd.get("id"));
   const categoryId = int(fd.get("categoryId"));
   const cat = await prisma.category.findUnique({ where: { id: categoryId } });
-  if (!cat) throw new Error("카테고리를 선택하세요.");
+  if (!cat) return { error: "카테고리를 선택해 주세요." };
   const sale = int(fd.get("salePrice"));
   const data = {
     name: String(fd.get("name") || "").trim(),
-    slug: String(fd.get("slug") || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+    slug: slugOr(fd.get("slug"), "p"),
     price: int(fd.get("price")),
     salePrice: sale > 0 ? sale : null,
     description: String(fd.get("description") || ""),
@@ -55,9 +72,15 @@ export async function saveProduct(fd: FormData) {
     colors: String(fd.get("colors") || "").split(",").map((s) => s.trim()).filter(Boolean).join(","),
     sizeChart: String(fd.get("sizeChart") || "").trim(),
   };
-  if (!data.name || !data.slug || data.price <= 0) throw new Error("상품명, 주소(slug), 가격은 필수예요.");
-  if (id) await prisma.product.update({ where: { id }, data });
-  else await prisma.product.create({ data });
+  if (!data.name) return { error: "상품명을 입력해 주세요." };
+  if (data.price <= 0) return { error: "정가를 1원 이상으로 입력해 주세요." };
+  if (data.salePrice && data.salePrice >= data.price) return { error: "할인가는 정가보다 낮아야 해요." };
+  try {
+    if (id) await prisma.product.update({ where: { id }, data });
+    else await prisma.product.create({ data });
+  } catch (e) {
+    return { error: dbError(e) };
+  }
   revalidatePath("/", "layout");
   redirect("/admin/products");
 }
@@ -71,7 +94,7 @@ export async function deactivateProduct(fd: FormData) {
 export async function updateOrder(fd: FormData) {
   await requireAdmin();
   const status = String(fd.get("status"));
-  if (!ORDER_STATUS[status]) throw new Error("잘못된 상태");
+  if (!ORDER_STATUS[status]) return;
   await prisma.order.update({
     where: { id: int(fd.get("id")) },
     data: { status, trackingNo: String(fd.get("trackingNo") || "").trim() || null },
@@ -83,17 +106,21 @@ export async function addCategory(fd: FormData) {
   await requireAdmin();
   const name = String(fd.get("name") || "").trim();
   const slug = String(fd.get("slug") || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
-  if (!name || !slug) throw new Error("이름과 slug는 필수예요.");
-  await prisma.category.create({
-    data: { name, slug, adultOnly: fd.get("adultOnly") === "on", sort: int(fd.get("sort")) },
-  });
+  if (!name || !slug) return;
+  try {
+    await prisma.category.create({
+      data: { name, slug, adultOnly: fd.get("adultOnly") === "on", sort: int(fd.get("sort")) },
+    });
+  } catch (e) {
+    console.error("[addCategory]", e); // slug 중복 등: 화면이 멈추지 않게 무시
+  }
   revalidatePath("/", "layout");
 }
 
 export async function updateCategory(fd: FormData) {
   await requireAdmin();
   const name = String(fd.get("name") || "").trim();
-  if (!name) throw new Error("이름은 필수예요.");
+  if (!name) return;
   await prisma.category.update({
     where: { id: int(fd.get("id")) },
     data: { name, menuName: String(fd.get("menuName") || "").trim(), sort: int(fd.get("sort")) },
@@ -101,13 +128,13 @@ export async function updateCategory(fd: FormData) {
   revalidatePath("/", "layout");
 }
 
-export async function saveLook(fd: FormData) {
+export async function saveLook(fd: FormData): Promise<SaveResult> {
   await requireAdmin();
   const id = int(fd.get("id"));
   const productIds = fd.getAll("productIds").map((v) => int(v)).filter((n) => n > 0);
   const data = {
     title: String(fd.get("title") || "").trim(),
-    slug: String(fd.get("slug") || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+    slug: slugOr(fd.get("slug"), "look"),
     description: String(fd.get("description") || ""),
     imageUrl: String(fd.get("imageUrl") || "").trim() || null,
     gender: ["M", "F", "U"].includes(String(fd.get("gender"))) ? String(fd.get("gender")) : "U",
@@ -115,16 +142,20 @@ export async function saveLook(fd: FormData) {
     active: fd.get("active") === "on",
     sort: int(fd.get("sort")),
   };
-  if (!data.title || !data.slug) throw new Error("코디명과 slug는 필수예요.");
-  if (productIds.length < 2) throw new Error("상품을 2개 이상 골라 주세요.");
+  if (!data.title) return { error: "코디명을 입력해 주세요." };
+  if (productIds.length < 2) return { error: "상품을 2개 이상 골라 주세요." };
   const items = { create: productIds.map((productId, i) => ({ productId, sort: i })) };
-  if (id) {
-    await prisma.$transaction([
-      prisma.lookItem.deleteMany({ where: { lookId: id } }),
-      prisma.look.update({ where: { id }, data: { ...data, items } }),
-    ]);
-  } else {
-    await prisma.look.create({ data: { ...data, items } });
+  try {
+    if (id) {
+      await prisma.$transaction([
+        prisma.lookItem.deleteMany({ where: { lookId: id } }),
+        prisma.look.update({ where: { id }, data: { ...data, items } }),
+      ]);
+    } else {
+      await prisma.look.create({ data: { ...data, items } });
+    }
+  } catch (e) {
+    return { error: dbError(e) };
   }
   revalidatePath("/", "layout");
   redirect("/admin/looks");
