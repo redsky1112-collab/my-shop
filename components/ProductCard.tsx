@@ -27,7 +27,7 @@ export default function ProductCard({ p, adult, adultOk }: { p: P; adult: boolea
     <Link href={`/product/${p.slug}`} className="card">
       <Thumb src={p.imageUrl} alt={p.name} />
       <div className="card-body">
-        <div className="card-name">{p.name}</div>
+        <div className="card-name">{p.name}{adult && <span className="r19-mini">19</span>}</div>
         <div className="card-price">
           {sale ? (
             <>

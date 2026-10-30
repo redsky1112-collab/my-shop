@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <div className="detail">
       <Thumb src={p.imageUrl} alt={p.name} />
       <div>
-        <div className="muted">{p.category.name}</div>
+        <div className="muted">{p.category.name}{adult && <span className="r19-mini">19</span>}</div>
         <h1 className="detail-name">{p.name}</h1>
         <div className="detail-price">
           {price !== p.price && <s className="muted">{won(p.price)}</s>} <b>{won(price)}</b>

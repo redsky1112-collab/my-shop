@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { isAdultVerified } from "@/lib/adult";
 import { getUser } from "@/lib/user";
 import CartBadge from "./CartBadge";
 import Logo from "./Logo";
 
 export default async function Header() {
-  const [cats, adultOk, user] = await Promise.all([
+  const [cats, user] = await Promise.all([
     prisma.category.findMany({ orderBy: { sort: "asc" } }),
-    isAdultVerified(),
     getUser(),
   ]);
   return (
@@ -24,7 +22,7 @@ export default async function Header() {
           {cats.map((c) => (
             <Link key={c.id} href={`/category/${c.slug}`}>
               {c.menuName || c.name}
-              {c.adultOnly && !adultOk && <span className="r19-mini">19</span>}
+              {c.adultOnly && <span className="r19-mini" title="19세 이상">19</span>}
             </Link>
           ))}
           <Link href="/about">ABOUT</Link>

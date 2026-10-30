@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import ProductCard from "@/components/ProductCard";
 import { LINES, lineOf } from "@/lib/lines";
+import ForYou from "@/components/ForYou";
 
 export default async function CategoryPage({
   params,
@@ -38,7 +39,15 @@ export default async function CategoryPage({
 
   return (
     <>
-      <h1 className="page-title">{cat.name}</h1>
+      <h1 className="page-title">{cat.name}{cat.adultOnly && <span className="r19-mini">19</span>}</h1>
+      {/* 체형·취향 맞춤 제안: 이 카테고리 상품 중에서 골라 추천 사이즈와 함께 */}
+      {!cat.adultOnly && products.length > 0 && <ForYou
+        products={products.map((p) => ({
+          id: p.id, name: p.name, slug: p.slug, price: p.price, salePrice: p.salePrice, imageUrl: p.imageUrl,
+          stock: p.stock, options: p.options, gender: p.gender, styles: p.styles, fit: p.fit,
+        }))}
+        compact
+      />}
       {products.length === 0 && <p className="muted">등록된 상품이 없어요.</p>}
 
       {showLines && (
