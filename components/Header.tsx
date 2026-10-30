@@ -23,7 +23,7 @@ export default async function Header() {
           <Link href="/looks">코디</Link>
           {cats.map((c) => (
             <Link key={c.id} href={`/category/${c.slug}`}>
-              {c.name}
+              {c.menuName || c.name}
               {c.adultOnly && !adultOk && <span className="r19-mini">19</span>}
             </Link>
           ))}

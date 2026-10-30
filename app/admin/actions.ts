@@ -88,6 +88,17 @@ export async function addCategory(fd: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function updateCategory(fd: FormData) {
+  await requireAdmin();
+  const name = String(fd.get("name") || "").trim();
+  if (!name) throw new Error("이름은 필수예요.");
+  await prisma.category.update({
+    where: { id: int(fd.get("id")) },
+    data: { name, menuName: String(fd.get("menuName") || "").trim(), sort: int(fd.get("sort")) },
+  });
+  revalidatePath("/", "layout");
+}
+
 export async function saveLook(fd: FormData) {
   await requireAdmin();
   const id = int(fd.get("id"));

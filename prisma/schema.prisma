@@ -11,6 +11,7 @@ datasource db {
 model Category {
   id        Int       @id @default(autoincrement())
   name      String
+  menuName  String    @default("") // 상단 메뉴용 짧은 이름 (비우면 name 사용)
   slug      String    @unique
   adultOnly Boolean   @default(false) // 성인 카테고리: 인증 전에는 목록·이름·이미지 숨김
   sort      Int       @default(0)
