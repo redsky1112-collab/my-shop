@@ -5,7 +5,6 @@ import ForYou from "@/components/ForYou";
 import { getRecProducts } from "@/lib/catalog";
 import Link from "next/link";
 import { BRAND } from "@/lib/site";
-import { LINES } from "@/lib/lines";
 
 export default async function Home() {
   const adultOk = await isAdultVerified();
@@ -26,16 +25,6 @@ export default async function Home() {
           <Link href="/style-quiz" className="btn sand">1분 스타일 진단</Link>
           <Link href="/about" className="btn ghost">브랜드 이야기</Link>
         </div>
-      </section>
-      <section className="lines">
-        {LINES.map((l) => (
-          <Link key={l.key} href={`/line/${l.key}`} className={`line-card ${l.key}`}>
-            <span className="line-ko">{l.ko}</span>
-            <b className="line-name">{l.name}</b>
-            <span className="line-card-items">{l.items}</span>
-            <span className="line-go">보러 가기 →</span>
-          </Link>
-        ))}
       </section>
       <ForYou products={recProducts} compact />
       <h2 className="section-title">신상품</h2>
