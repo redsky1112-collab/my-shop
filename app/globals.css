@@ -231,3 +231,33 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
   .admin-main { padding: 14px; }
   .form input, .form select, .form textarea { font-size: 16px; } /* 아이폰 입력 시 자동 확대 방지 */
 }
+
+/* ── 브랜드 라인 ── */
+.lines { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 4px 0 24px; }
+.line-card { display: grid; gap: 6px; padding: 22px 20px; border-radius: 4px; min-height: 150px; align-content: start; }
+.line-card.formal { background: var(--black); color: #fff; }
+.line-card.smart { background: var(--green); color: #fff; }
+.line-card.lounge { background: var(--sand); color: var(--green); }
+.line-ko { font-size: 11px; letter-spacing: .08em; opacity: .75; }
+.line-name { font-family: var(--serif); font-weight: 400; font-size: 21px; letter-spacing: .04em; }
+.line-card-items { font-size: 13px; opacity: .85; line-height: 1.6; }
+.line-go { font-size: 12px; margin-top: auto; padding-top: 8px; opacity: .8; }
+.cats .line-link { font-family: var(--serif); letter-spacing: .04em; color: var(--green); }
+.line-head { text-align: center; padding: 28px 0 8px; }
+.line-head .hero-tag { color: var(--muted); }
+.line-title { font-family: var(--serif); font-weight: 400; font-size: 30px; margin: 0 0 8px; color: var(--green); }
+.line-desc { margin: 0 0 6px; color: #444; } .line-items { margin: 0; font-size: 13px; color: var(--muted); }
+.line-tabs { display: flex; gap: 8px; justify-content: center; margin: 20px 0 24px; flex-wrap: wrap; }
+.line-tabs a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 20px; font-size: 13px; background: #fff; }
+.line-tabs a.on { background: var(--green); color: #fff; border-color: var(--green); }
+.mix-bar { position: relative; height: 8px; background: var(--soft); border-radius: 4px; margin-bottom: 4px; min-width: 120px; }
+.mix-bar div { height: 100%; background: var(--green); border-radius: 4px; }
+.mix-bar i { position: absolute; top: -3px; width: 2px; height: 14px; background: var(--gold); }
+@media (max-width: 760px) {
+  .lines { grid-template-columns: 1fr; gap: 8px; }
+  .line-card { min-height: 0; padding: 18px; }
+  .line-name { font-size: 19px; }
+  .line-title { font-size: 24px; }
+  .line-tabs { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; margin: 16px -16px 20px; padding: 0 16px; }
+  .line-tabs a { white-space: nowrap; }
+}

@@ -4,6 +4,7 @@ import { isAdultVerified } from "@/lib/adult";
 import { getUser } from "@/lib/user";
 import CartBadge from "./CartBadge";
 import Logo from "./Logo";
+import { LINES } from "@/lib/lines";
 
 export default async function Header() {
   const [cats, adultOk, user] = await Promise.all([
@@ -19,6 +20,7 @@ export default async function Header() {
         </Link>
         {/* PC: 한 줄 가운데 / 휴대폰: 아래 줄로 내려가 좌우로 밀어서 보는 메뉴 */}
         <nav className="cats" aria-label="카테고리">
+          {LINES.map((l) => <Link key={l.key} href={`/line/${l.key}`} className="line-link">{l.name}</Link>)}
           <Link href="/for-you" className="hl">추천</Link>
           <Link href="/looks">코디</Link>
           {cats.map((c) => (

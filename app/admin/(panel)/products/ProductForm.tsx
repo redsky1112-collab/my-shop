@@ -2,11 +2,12 @@ import { prisma } from "@/lib/db";
 import { saveProduct } from "../../actions";
 import { FITS, GENDERS, STYLES, splitTags } from "@/lib/style";
 import ImageUpload from "@/components/ImageUpload";
+import { LINES } from "@/lib/lines";
 
 type P = {
   id: number; name: string; slug: string; price: number; salePrice: number | null; description: string;
   imageUrl: string | null; stock: number; options: string; active: boolean; adultOnly: boolean; categoryId: number;
-  gender: string; styles: string; fit: string; colors: string; sizeChart: string;
+  line: string; gender: string; styles: string; fit: string; colors: string; sizeChart: string;
 };
 
 export default async function ProductForm({ p }: { p?: P }) {
@@ -17,6 +18,12 @@ export default async function ProductForm({ p }: { p?: P }) {
       <label>카테고리
         <select name="categoryId" defaultValue={p?.categoryId} required>
           {cats.map((c) => <option key={c.id} value={c.id}>{c.name}{c.adultOnly ? " (19)" : ""}</option>)}
+        </select>
+      </label>
+      <label>브랜드 라인
+        <select name="line" defaultValue={p?.line ?? ""}>
+          <option value="">지정 안 함 (라인 페이지에 안 보여요)</option>
+          {LINES.map((l) => <option key={l.key} value={l.key}>{l.name} — {l.items}</option>)}
         </select>
       </label>
       <label>상품명<input name="name" defaultValue={p?.name} required /></label>

@@ -8,6 +8,7 @@ import { ADMIN_COOKIE, makeAdminToken, requireAdmin } from "@/lib/admin";
 import { cookieOpts } from "@/lib/adult";
 import { safeEqual } from "@/lib/sign";
 import { ORDER_STATUS } from "@/lib/site";
+import { lineOf } from "@/lib/lines";
 
 export async function login(_: unknown, fd: FormData): Promise<{ error?: string } | null> {
   const pw = String(fd.get("password") || "");
@@ -47,6 +48,7 @@ export async function saveProduct(fd: FormData) {
     // 성인 카테고리 상품은 무조건 성인 상품으로 처리
     adultOnly: cat.adultOnly || fd.get("adultOnly") === "on",
     categoryId,
+    line: lineOf(String(fd.get("line") || "")) ? String(fd.get("line")) : "",
     gender: ["M", "F", "U"].includes(String(fd.get("gender"))) ? String(fd.get("gender")) : "U",
     styles: fd.getAll("styles").map(String).join(","),
     fit: String(fd.get("fit") || ""),

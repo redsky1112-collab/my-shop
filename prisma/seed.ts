@@ -29,6 +29,14 @@ async function tagSamples() {
   for (const [slug, t] of Object.entries(tags)) {
     await prisma.product.updateMany({ where: { slug, styles: "" }, data: t });
   }
+  // 샘플 상품 브랜드 라인 (라인이 비어 있는 샘플만)
+  const lines: Record<string, string> = {
+    "wool-coat": "formal", "cotton-chino": "smart", "wide-denim": "smart",
+    "basic-tee": "lounge", "overfit-hoodie": "lounge", "light-padding": "lounge",
+  };
+  for (const [slug, line] of Object.entries(lines)) {
+    await prisma.product.updateMany({ where: { slug, line: "" }, data: { line } });
+  }
 }
 
 async function seedLooks() {

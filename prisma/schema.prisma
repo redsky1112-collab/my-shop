@@ -31,6 +31,7 @@ model Product {
   active      Boolean     @default(true)
   adultOnly   Boolean     @default(false)
   // ── 스타일 맞춤용 태그 (lib/style.ts 의 키 사용) ──
+  line        String      @default("")  // 브랜드 라인: formal / smart / lounge (lib/lines.ts)
   gender      String      @default("U") // M 남성, F 여성, U 공용
   styles      String      @default("")  // 쉼표 구분 (예: "minimal,dandy")
   fit         String      @default("")  // slim / regular / over
