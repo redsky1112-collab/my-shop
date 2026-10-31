@@ -6,7 +6,7 @@ import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { won, shippingFor } from "@/lib/format";
-import { SHIPPING } from "@/lib/site";
+import { GIFT, SHIPPING } from "@/lib/site";
 
 declare global {
   interface Window {
@@ -23,6 +23,8 @@ export default function CheckoutPage() {
   });
   const [same, setSame] = useState(true);
   const [agree, setAgree] = useState(false);
+  const [gift, setGift] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [member, setMember] = useState<boolean | null>(null);
@@ -45,6 +47,7 @@ export default function CheckoutPage() {
 
   const itemsTotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const ship = shippingFor(itemsTotal, SHIPPING.fee, SHIPPING.freeOver);
+  const giftFee = gift ? GIFT.fee : 0;
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
 
   const findAddr = () => {
@@ -62,6 +65,8 @@ export default function CheckoutPage() {
       ...f,
       recipient: same ? f.buyerName : f.recipient,
       phone: same ? f.buyerPhone : f.phone,
+      giftWrap: gift,
+      giftMessage: gift ? giftMessage : "",
       items: items.map((i) => ({ productId: i.productId, option: i.option, quantity: i.quantity })),
     };
     setBusy(true);
@@ -111,10 +116,35 @@ export default function CheckoutPage() {
         <input placeholder="상세주소" value={f.address2} onChange={set("address2")} />
         <input placeholder="배송 메모 (선택)" value={f.memo} onChange={set("memo")} />
 
+        <h3>포장</h3>
+        <div className="gift-options">
+          <label className={`gift-opt${!gift ? " on" : ""}`}>
+            <input type="radio" name="gift" checked={!gift} onChange={() => setGift(false)} />
+            <span><b>기본 포장</b><span className="small muted">듀오로그 기본 포장 · 무료</span></span>
+          </label>
+          <label className={`gift-opt${gift ? " on" : ""}`}>
+            <input type="radio" name="gift" checked={gift} onChange={() => setGift(true)} />
+            <span><b>{GIFT.title} +{won(GIFT.fee)}</b><span className="small muted">{GIFT.desc}</span></span>
+          </label>
+        </div>
+        {gift && (
+          <>
+            <p className="gift-note small">{GIFT.note}<br />{GIFT.receiptNote}<br />선물 포장비 {won(GIFT.fee)}이 결제금액에 추가돼요.</p>
+            <textarea
+              rows={3}
+              maxLength={GIFT.messageMax}
+              placeholder={`메시지 카드에 담을 말 (선택, ${GIFT.messageMax}자 이내)`}
+              value={giftMessage}
+              onChange={(e) => setGiftMessage(e.target.value)}
+            />
+          </>
+        )}
+
         <div className="summary">
           <div><span>상품금액</span><span>{won(itemsTotal)}</span></div>
           <div><span>배송비</span><span>{ship ? won(ship) : "무료"}</span></div>
-          <div className="total"><span>결제금액</span><span>{won(itemsTotal + ship)}</span></div>
+          {gift && <div><span>선물 포장</span><span>{won(giftFee)}</span></div>}
+          <div className="total"><span>결제금액</span><span>{won(itemsTotal + ship + giftFee)}</span></div>
         </div>
         <label className="check">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />

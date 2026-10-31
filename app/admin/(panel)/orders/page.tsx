@@ -23,7 +23,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
           {orders.map((o) => (
             <tr key={o.id}>
               <td>{o.orderNo}<br /><span className="muted small">{o.createdAt.toLocaleString("ko-KR")}</span></td>
-              <td>{o.items.map((i) => <div key={i.id}>{i.name}{i.option && ` (${i.option})`} × {i.quantity}</div>)}{o.hasAdult && <span className="r19-mini">19</span>}</td>
+              <td>{o.items.map((i) => <div key={i.id}>{i.name}{i.option && ` (${i.option})`} × {i.quantity}</div>)}{o.hasAdult && <span className="r19-mini">19</span>}{o.giftWrap && <div className="gift-tag small">🎁 선물 포장{o.giftMessage && `: “${o.giftMessage}”`}</div>}</td>
               <td>{won(o.total)}</td>
               <td>{o.recipient} {o.phone}<br /><span className="small">[{o.zipcode}] {o.address1} {o.address2}</span>{o.memo && <div className="muted small">메모: {o.memo}</div>}</td>
               <td>

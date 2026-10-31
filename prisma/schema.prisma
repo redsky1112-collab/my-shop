@@ -131,6 +131,9 @@ model Order {
   total       Int
   orderName   String
   hasAdult    Boolean     @default(false)
+  giftWrap    Boolean     @default(false) // 선물 포장 선택
+  giftFee     Int         @default(0)     // 선물 포장비 (total에 포함)
+  giftMessage String      @default("")    // 메시지 카드 문구
   paymentKey  String?
   paidAt      DateTime?
   trackingNo  String?

@@ -30,6 +30,7 @@ export default async function Lookup({ searchParams }: { searchParams: Promise<{
             </div>
           ))}
           <div><span>배송비</span><span>{won(o.shippingFee)}</span></div>
+          {o.giftWrap && <div><span>선물 포장</span><span>{won(o.giftFee)}</span></div>}
           <div className="total"><span>결제금액</span><span>{won(o.total)}</span></div>
           <div><span>받는 분</span><span>{o.recipient}</span></div>
           <div><span>주소</span><span>{o.address1} {o.address2}</span></div>

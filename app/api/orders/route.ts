@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import { newOrderNo, onlyDigits, shippingFor } from "@/lib/format";
-import { SHIPPING } from "@/lib/site";
+import { GIFT, SHIPPING } from "@/lib/site";
 import { getUser } from "@/lib/user";
 
 type Body = {
   buyerName: string; buyerPhone: string; buyerEmail: string;
   recipient: string; phone: string; zipcode: string; address1: string; address2?: string; memo?: string;
+  giftWrap?: boolean; giftMessage?: string;
   items: { productId: number; option: string; quantity: number }[];
 };
 
@@ -57,6 +58,10 @@ export async function POST(req: Request) {
 
   const itemsTotal = lines.reduce((s, l) => s + l.price * l.quantity, 0);
   const shippingFee = shippingFor(itemsTotal, SHIPPING.fee, SHIPPING.freeOver);
+  // 선물 포장비도 클라이언트 값이 아니라 서버 설정값으로 계산
+  const giftWrap = b.giftWrap === true;
+  const giftFee = giftWrap ? GIFT.fee : 0;
+  const giftMessage = giftWrap ? str(b.giftMessage, GIFT.messageMax) : "";
   // 결제창·영수증에 노출되는 주문명. 성인상품이 섞여 있으면 품명을 노출하지 않음
   const orderName = hasAdult
     ? `주문상품 ${lines.length}건`
@@ -68,7 +73,8 @@ export async function POST(req: Request) {
       orderNo: newOrderNo(),
       userId: user?.id ?? null,
       buyerName, buyerPhone, buyerEmail, recipient, phone, zipcode, address1, address2, memo,
-      itemsTotal, shippingFee, total: itemsTotal + shippingFee,
+      itemsTotal, shippingFee, total: itemsTotal + shippingFee + giftFee,
+      giftWrap, giftFee, giftMessage,
       orderName: orderName.slice(0, 100),
       hasAdult,
       items: { create: lines },

@@ -25,6 +25,16 @@ export const SHIPPING = {
   freeOver: 50000,
 };
 
+// 선물 포장 옵션 (금박 하드박스). 금액을 바꾸려면 fee만 수정
+export const GIFT = {
+  fee: 2000,
+  messageMax: 100,
+  title: "선물 포장",
+  desc: "버건디 하드박스 + 금박 커버 + 메시지 카드",
+  note: "포장비는 상자값만 받아요. 나머지는 저희가 드리는 선물이에요.",
+  receiptNote: "선물 포장 주문에는 가격표·명세서를 넣지 않아요.",
+};
+
 export const ORDER_STATUS: Record<string, string> = {
   PENDING: "결제대기",
   PAID: "결제완료",
