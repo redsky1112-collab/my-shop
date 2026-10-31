@@ -319,3 +319,18 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .banner-row { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fff; }
 .banner-row.off { opacity: .5; }
 .banner-row img { width: 64px; height: 86px; object-fit: cover; border-radius: 4px; }
+
+/* ── PRIVATE DIALOGUE 전용 톤 (버건디 + 금색, 패키징과 통일) ── */
+:root { --burgundy: #5A1A24; --burgundy-soft: #F6EDEE; }
+.private { --green: var(--burgundy); --brand: var(--burgundy); --soft: var(--burgundy-soft); }
+.private .r19-mini { color: var(--gold); border-color: var(--gold); }
+.private-head { background: var(--burgundy); color: var(--gold); border-radius: 4px; padding: 40px 20px 34px; text-align: center;
+  display: grid; justify-items: center; gap: 12px; margin-bottom: 24px; }
+.private-head h1 { font-family: var(--serif); font-weight: 400; font-size: 26px; letter-spacing: .18em; margin: 0; }
+.private-head p { margin: 0; font-size: 13px; color: #e8d9c0; letter-spacing: .04em; }
+.cats .private-link { color: var(--burgundy); font-family: var(--serif); letter-spacing: .04em; }
+.adult-gate.private .r19 { border-color: var(--burgundy); color: var(--burgundy); }
+@media (max-width: 760px) {
+  .private-head { margin: -16px -16px 20px; border-radius: 0; padding: 32px 18px 28px; }
+  .private-head h1 { font-size: 21px; }
+}

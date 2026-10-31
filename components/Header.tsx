@@ -20,7 +20,7 @@ export default async function Header() {
           <Link href="/for-you" className="hl">추천</Link>
           <Link href="/looks">코디</Link>
           {cats.map((c) => (
-            <Link key={c.id} href={`/category/${c.slug}`}>
+            <Link key={c.id} href={`/category/${c.slug}`} className={c.adultOnly ? "private-link" : undefined}>
               {c.menuName || c.name}
               {c.adultOnly && <span className="r19-mini" title="19세 이상">19</span>}
             </Link>

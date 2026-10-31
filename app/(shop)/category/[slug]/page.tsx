@@ -5,6 +5,7 @@ import { isAdultVerified } from "@/lib/adult";
 import ProductCard from "@/components/ProductCard";
 import { LINES, lineOf } from "@/lib/lines";
 import ForYou from "@/components/ForYou";
+import { QuoteMark } from "@/components/Logo";
 
 export default async function CategoryPage({
   params,
@@ -38,8 +39,16 @@ export default async function CategoryPage({
   );
 
   return (
-    <>
-      <h1 className="page-title">{cat.name}{cat.adultOnly && <span className="r19-mini">19</span>}</h1>
+    <div className={cat.adultOnly ? "private" : undefined}>
+      {cat.adultOnly ? (
+        <header className="private-head">
+          <QuoteMark size={30} />
+          <h1>{cat.name}<span className="r19-mini">19</span></h1>
+          <p>당신만의 조용한 대화</p>
+        </header>
+      ) : (
+        <h1 className="page-title">{cat.name}</h1>
+      )}
       {/* 체형·취향 맞춤 제안: 이 카테고리 상품 중에서 골라 추천 사이즈와 함께 */}
       {!cat.adultOnly && products.length > 0 && <ForYou
         products={products.map((p) => ({
@@ -99,6 +108,6 @@ export default async function CategoryPage({
           )}
         </>
       )}
-    </>
+    </div>
   );
 }

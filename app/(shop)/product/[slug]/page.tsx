@@ -27,7 +27,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const looks = p.lookItems.map((li) => li.look).filter((l) => l.active);
 
   return (
-    <div className="detail">
+    <div className={adult ? "detail private" : "detail"}>
       <Thumb src={p.imageUrl} alt={p.name} />
       <div>
         <div className="muted">{p.category.name}{adult && <span className="r19-mini">19</span>}</div>

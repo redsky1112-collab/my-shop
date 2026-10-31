@@ -10,7 +10,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
   const to = safeNext(next);
   if (await isAdultVerified()) redirect(to);
   return (
-    <div className="adult-gate">
+    <div className="adult-gate private">
       <div className="r19 big">19</div>
       <h1>성인인증이 필요해요</h1>
       <p className="muted">
