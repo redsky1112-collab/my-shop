@@ -8,7 +8,7 @@ import Link from "next/link";
 import { parseSizeChart } from "@/lib/recommend";
 import { FITS, STYLES, labelOf, splitTags } from "@/lib/style";
 import { QuoteMark } from "@/components/Logo";
-import { BRAND } from "@/lib/site";
+import { BRAND, GIFT } from "@/lib/site";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -41,6 +41,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           stock={p.stock}
           fit={p.fit}
         />
+        <div className="gift-banner">
+          <QuoteMark size={16} />
+          <div>
+            <b>선물하시나요? {GIFT.title} +{won(GIFT.fee)}</b>
+            <p className="small">{GIFT.desc}</p>
+            <p className="small muted">{GIFT.note} 주문서에서 선택할 수 있어요.</p>
+          </div>
+        </div>
         {tags.length > 0 && (
           <div className="tags mt-s">{tags.map((t) => <span key={t} className="tag">{t}</span>)}</div>
         )}
