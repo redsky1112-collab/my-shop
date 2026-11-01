@@ -96,9 +96,11 @@ export async function saveProduct(fd: FormData): Promise<SaveResult> {
   if (!data.name) return { error: "상품명을 입력해 주세요." };
   if (data.price <= 0) return { error: "정가를 1원 이상으로 입력해 주세요." };
   if (data.salePrice && data.salePrice >= data.price) return { error: "할인가는 정가보다 낮아야 해요." };
+  let savedId = id;
   try {
     await prisma.$transaction(async (tx) => {
       const saved = id ? await tx.product.update({ where: { id }, data }) : await tx.product.create({ data });
+      savedId = saved.id;
       // 빠진 옵션 삭제 → 남은 옵션은 재고 갱신·새 옵션 추가
       await tx.variant.deleteMany({ where: { productId: saved.id, option: { notIn: variants.map((v) => v.option) } } });
       for (const v of variants) {
@@ -114,6 +116,8 @@ export async function saveProduct(fd: FormData): Promise<SaveResult> {
     return { error: dbError(e) };
   }
   revalidatePath("/", "layout");
+  // 새 의류 상품은 저장 후 바로 AI 화보 화면으로 (PRIVATE 제외)
+  if (!id && !data.adultOnly) redirect(`/admin/products/${savedId}/ai?new=1`);
   redirect("/admin/products");
 }
 

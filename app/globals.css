@@ -544,3 +544,9 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .fitting .check input { width: auto; flex: none; margin-top: 2px; }
 .fitting .check { align-items: flex-start; }
 .fitting-blocked { margin: 0; padding: 12px; background: var(--soft); border-radius: 6px; font-size: 14px; }
+.ai-entry { display: grid; gap: 3px; padding: 14px 16px; margin-bottom: 18px; border-radius: 8px; background: var(--green); color: #fff; }
+.ai-entry b { color: var(--gold); font-size: 16px; }
+.ai-entry span { font-size: 13px; color: #e9e4da; }
+.ai-new { display: grid; gap: 6px; }
+.ai-link { color: var(--green); font-weight: 700; white-space: nowrap; }
+.ai-link { display: inline-block; margin-right: 10px; }

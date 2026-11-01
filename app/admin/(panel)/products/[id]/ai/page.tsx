@@ -6,9 +6,12 @@ import { fashnEnabled, getSetting } from "@/lib/fashn";
 import { galleryOf } from "@/lib/gallery";
 import AiStudio from "./AiStudio";
 
-export default async function ProductAi({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProductAi({
+  params, searchParams,
+}: { params: Promise<{ id: string }>; searchParams: Promise<{ new?: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  const isNew = (await searchParams).new === "1";
   const p = await prisma.product.findUnique({ where: { id: Number(id) || 0 }, include: { category: true } });
   if (!p) notFound();
   const adult = p.adultOnly || p.category.adultOnly;
@@ -21,6 +24,12 @@ export default async function ProductAi({ params }: { params: Promise<{ id: stri
   return (
     <>
       <Link href={`/admin/products/${p.id}`} className="link">← 상품 수정으로</Link>
+      {isNew && (
+        <div className="form-ok ai-new">
+          <b>상품을 등록했어요 ✓</b> 이어서 AI 착용 화보를 만들어 보세요. 지금 안 해도 돼요.
+          <Link href="/admin/products" className="link">나중에 할게요 → 상품 목록</Link>
+        </div>
+      )}
       <h1 className="page-title">AI 화보 · 가상 피팅 설정</h1>
       <p className="muted" style={{ marginTop: -8 }}>{p.name}</p>
       {adult ? (

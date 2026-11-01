@@ -31,6 +31,7 @@ export default async function Products() {
               </td>
               <td>{p.active ? "판매중" : "중지"}</td>
               <td>
+                {!(p.adultOnly || p.category.adultOnly) && <Link href={`/admin/products/${p.id}/ai`} className="ai-link">✨ AI 화보</Link>}
                 {p.active && (
                   <form action={deactivateProduct}><input type="hidden" name="id" value={p.id} /><button className="link">판매중지</button></form>
                 )}
