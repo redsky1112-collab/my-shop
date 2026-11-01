@@ -10,11 +10,10 @@ import HeroSlider from "@/components/HeroSlider";
 export default async function Home() {
   const adultOk = await isAdultVerified();
   // 메인에는 일반 상품만 노출 (성인 상품은 성인 카테고리 안에서만)
-  const products = await prisma.product.findMany({
-    where: { active: true, adultOnly: false, category: { adultOnly: false } },
-    orderBy: { createdAt: "desc" },
-    take: 24,
-  });
+  // 신상품 = 관리자가 '신상품'으로 지정한 상품. 아직 하나도 지정 안 했으면 최근 등록 8개로 대신 채움
+  const base = { active: true, adultOnly: false, category: { adultOnly: false } };
+  let products = await prisma.product.findMany({ where: { ...base, isNew: true }, orderBy: { createdAt: "desc" }, take: 24 });
+  if (products.length === 0) products = await prisma.product.findMany({ where: base, orderBy: { createdAt: "desc" }, take: 8 });
   const recProducts = await getRecProducts();
   const banners = await prisma.banner.findMany({
     where: { active: true },

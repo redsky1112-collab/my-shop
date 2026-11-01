@@ -72,6 +72,7 @@ export async function saveProduct(fd: FormData): Promise<SaveResult> {
     stock: int(fd.get("stock")),
     options: "",
     active: fd.get("active") === "on",
+    isNew: fd.get("isNew") === "on",
     // 성인 카테고리 상품은 무조건 성인 상품으로 처리
     adultOnly: cat.adultOnly || fd.get("adultOnly") === "on",
     categoryId,
@@ -125,6 +126,13 @@ export async function deactivateProduct(fd: FormData) {
   await requireAdmin();
   await prisma.product.update({ where: { id: int(fd.get("id")) }, data: { active: false } });
   revalidatePath("/admin/products");
+}
+
+export async function setProductNew(fd: FormData) {
+  await requireAdmin();
+  await prisma.product.update({ where: { id: int(fd.get("id")) }, data: { isNew: fd.get("on") === "1" } });
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
 }
 
 export async function activateProduct(fd: FormData) {

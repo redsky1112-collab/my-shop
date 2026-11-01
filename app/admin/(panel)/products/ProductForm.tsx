@@ -9,7 +9,7 @@ import OptionStock from "./OptionStock";
 
 type P = {
   id: number; name: string; slug: string; price: number; salePrice: number | null; description: string;
-  imageUrl: string | null; images?: string[]; stock: number; options: string; active: boolean; adultOnly: boolean; categoryId: number;
+  imageUrl: string | null; images?: string[]; stock: number; options: string; active: boolean; adultOnly: boolean; isNew?: boolean; categoryId: number;
   line: string; gender: string; styles: string; fit: string; colors: string; sizeChart: string;
   variants?: { option: string; stock: number; sort: number }[];
 };
@@ -74,6 +74,7 @@ export default async function ProductForm({ p }: { p?: P }) {
       <MultiImageUpload defaultValue={p ? galleryOf(p) : []} label="상품 사진" />
       <label>상세 설명<textarea name="description" rows={8} defaultValue={p?.description} /></label>
       <label className="check"><input type="checkbox" name="active" defaultChecked={p?.active ?? true} /> 판매중</label>
+      <label className="check"><input type="checkbox" name="isNew" defaultChecked={p?.isNew ?? false} /> 첫 화면 '신상품'에 노출</label>
       <label className="check"><input type="checkbox" name="adultOnly" defaultChecked={p?.adultOnly} /> 성인 상품 (성인 카테고리는 자동 적용)</label>
       <SubmitButton />
     </ActionForm>

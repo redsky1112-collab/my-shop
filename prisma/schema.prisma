@@ -32,6 +32,7 @@ model Product {
   options     String      @default("") // 쉼표 구분 옵션 (예: "S,M,L")
   active      Boolean     @default(true)
   adultOnly   Boolean     @default(false)
+  isNew       Boolean     @default(false) // 첫 화면 '신상품'에 노출 (관리자가 지정)
   // ── 스타일 맞춤용 태그 (lib/style.ts 의 키 사용) ──
   line        String      @default("")  // 브랜드 라인: formal / smart / lounge (lib/lines.ts)
   gender      String      @default("U") // M 남성, F 여성, U 공용
