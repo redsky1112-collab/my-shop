@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import { cleanIds } from "@/lib/wish";
+import { optionStockOf } from "@/lib/stock";
 
 /** 찜 목록 화면용 상품 정보 (판매중만). 성인 상품은 인증 전이면 이름·사진을 가림 */
 export async function GET(req: Request) {
@@ -13,6 +14,7 @@ export async function GET(req: Request) {
       select: {
         id: true, name: true, slug: true, price: true, salePrice: true, imageUrl: true, stock: true,
         adultOnly: true, category: { select: { adultOnly: true } },
+        options: true, variants: { select: { option: true, stock: true } },
       },
     }),
     isAdultVerified(),
@@ -26,6 +28,9 @@ export async function GET(req: Request) {
     return [{
       id: p.id, slug: p.slug, price: p.price, salePrice: p.salePrice, stock: p.stock, adult, masked,
       name: masked ? "" : p.name, imageUrl: masked ? null : p.imageUrl,
+      // 찜 화면에서 바로 담기용: 옵션과 옵션별 재고 (가려진 성인 상품은 빼고)
+      options: masked ? [] : p.options.split(",").map((o) => o.trim()).filter(Boolean),
+      optionStock: masked ? null : optionStockOf(p.variants),
     }];
   });
   return NextResponse.json({ items }, { headers: { "Cache-Control": "no-store" } });

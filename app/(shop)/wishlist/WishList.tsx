@@ -6,11 +6,55 @@ import { useWish } from "@/components/WishProvider";
 import WishButton from "@/components/WishButton";
 import Thumb from "@/components/Thumb";
 import { won } from "@/lib/format";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/components/CartProvider";
 
 type Item = {
   id: number; slug: string; name: string; imageUrl: string | null; price: number; salePrice: number | null;
   stock: number; adult: boolean; masked: boolean;
+  options?: string[]; optionStock?: Record<string, number> | null;
 };
+
+/** 찜 카드 아래: 사이즈 고르고 바로 장바구니·구매 */
+function QuickBuy({ p }: { p: Item }) {
+  const { add } = useCart();
+  const router = useRouter();
+  const [option, setOption] = useState("");
+  const [msg, setMsg] = useState("");
+  const opts = p.options ?? [];
+  const left = (o: string) => (p.optionStock ? p.optionStock[o] ?? 0 : p.stock);
+  if (p.masked || p.stock <= 0) return null;
+
+  const go = (buy: boolean) => {
+    if (opts.length && !option) return setMsg("사이즈를 골라 주세요.");
+    if (left(option) <= 0) return setMsg("품절된 사이즈예요.");
+    add({
+      productId: p.id, slug: p.slug, name: p.name, imageUrl: p.imageUrl, adultOnly: p.adult,
+      price: p.salePrice && p.salePrice < p.price ? p.salePrice : p.price, option, quantity: 1,
+    });
+    if (buy) router.push("/cart");
+    else setMsg("장바구니에 담았어요.");
+  };
+
+  return (
+    <div className="quick-buy">
+      {opts.length > 0 && (
+        <select value={option} onChange={(e) => { setOption(e.target.value); setMsg(""); }} aria-label="사이즈 선택">
+          <option value="">사이즈 선택</option>
+          {opts.map((o) => {
+            const n = left(o);
+            return <option key={o} value={o} disabled={n <= 0}>{o}{n <= 0 ? " (품절)" : n <= 3 ? ` (${n}개 남음)` : ""}</option>;
+          })}
+        </select>
+      )}
+      <div className="quick-buy-btns">
+        <button className="btn small outline" onClick={() => go(false)}>장바구니</button>
+        <button className="btn small" onClick={() => go(true)}>구매하기</button>
+      </div>
+      {msg && <p className="small muted">{msg}{msg.startsWith("장바구니에") && <> · <Link href="/cart" className="link">보기</Link></>}</p>}
+    </div>
+  );
+}
 
 export default function WishList() {
   const { ids, ready, member } = useWish();
@@ -72,6 +116,7 @@ export default function WishList() {
                   </Link>
                 )}
                 <WishButton productId={p.id} />
+                <QuickBuy p={p} />
               </div>
             );
           })}
