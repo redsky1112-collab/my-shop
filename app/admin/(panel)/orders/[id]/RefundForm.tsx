@@ -17,10 +17,11 @@ export default function RefundForm({
   const [ship, setShip] = useState(false);
   const [reason, setReason] = useState(REASONS[0]);
   const [restock, setRestock] = useState(true);
+  const [deduct, setDeduct] = useState(0);
 
   const itemsAmount = items.reduce((s, i) => s + i.price * (qty[i.id] ?? 0), 0);
   const allSelected = items.every((i) => (qty[i.id] ?? 0) >= i.remain);
-  const amount = mode === "full" || allSelected ? balance : Math.min(balance, itemsAmount + (ship ? shippingFee : 0));
+  const amount = (mode === "full" || allSelected ? balance : Math.min(balance, itemsAmount + (ship ? shippingFee : 0))) - deduct;
 
   return (
     <ActionForm action={refundOrder} className="form refund">
@@ -61,6 +62,12 @@ export default function RefundForm({
           {REASONS.map((r) => <option key={r}>{r}</option>)}
         </select>
       </label>
+      {paid && (
+        <label>환불금에서 뺄 금액 (고객 부담 반품 배송비 등, 없으면 0)
+          <input name="deduct" type="number" min={0} step={500} value={deduct} inputMode="numeric"
+            onChange={(e) => setDeduct(Math.max(0, Math.floor(Number(e.target.value) || 0)))} />
+        </label>
+      )}
       <label className="check">
         <input type="checkbox" name="restock" checked={restock} onChange={(e) => setRestock(e.target.checked)} />
         재고 되돌리기 (불량·훼손으로 다시 팔 수 없으면 해제)

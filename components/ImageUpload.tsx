@@ -8,7 +8,7 @@ const QUALITY = 0.85;
 type Shrunk = { blob: Blob; w: number; h: number };
 
 // 휴대폰 사진(수 MB)을 브라우저에서 바로 줄여서 업로드 → 빠르고 DB 용량도 절약
-async function shrink(file: File): Promise<Shrunk> {
+export async function shrink(file: File): Promise<Shrunk> {
   // GIF는 움짤이 깨지지 않게 원본 그대로
   if (file.type === "image/gif") return { blob: file, w: 0, h: 0 };
 

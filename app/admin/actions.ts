@@ -11,6 +11,7 @@ import { ORDER_STATUS } from "@/lib/site";
 import { lineOf } from "@/lib/lines";
 import { syncProductStock } from "@/lib/stock";
 import { cancelPayment } from "@/lib/refund";
+import { parseLines, reasonOf } from "@/lib/claims";
 
 export async function login(_: unknown, fd: FormData): Promise<{ error?: string } | null> {
   const pw = String(fd.get("password") || "");
@@ -126,7 +127,11 @@ export async function updateOrder(fd: FormData) {
   const nextStatus = cur.status === "CANCELED" ? "CANCELED" : status === "CANCELED" && cur.status !== "PENDING" ? cur.status : status;
   await prisma.order.update({
     where: { id },
-    data: { status: nextStatus, trackingNo: String(fd.get("trackingNo") || "").trim() || null },
+    data: {
+      status: nextStatus,
+      trackingNo: String(fd.get("trackingNo") || "").trim() || null,
+      ...(nextStatus === "DELIVERED" && cur.status !== "DELIVERED" ? { deliveredAt: new Date() } : {}),
+    },
   });
   revalidatePath("/admin/orders");
 }
@@ -143,6 +148,7 @@ export async function refundOrder(fd: FormData): Promise<SaveResult> {
     lines,
     refundShipping: fd.get("refundShipping") === "on",
     restock: fd.get("restock") === "on",
+    deduct: int(fd.get("deduct")),
     reason: String(fd.get("reason") || ""),
     by: "admin",
   });
@@ -245,4 +251,96 @@ export async function saveLook(fd: FormData): Promise<SaveResult> {
   }
   revalidatePath("/", "layout");
   redirect("/admin/looks");
+}
+
+// ── 교환·반품 처리 ──
+const CLAIM_NEXT = ["REQUESTED", "APPROVED", "COLLECTING", "REJECTED"];
+
+export async function updateClaim(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  const id = int(fd.get("id"));
+  const c = await prisma.claim.findUnique({ where: { id } });
+  if (!c) return { error: "신청을 찾을 수 없어요." };
+  if (c.status === "COMPLETED") return { error: "이미 완료된 신청이에요." };
+  const status = String(fd.get("status"));
+  if (!CLAIM_NEXT.includes(status)) return { error: "완료 처리는 아래 환불·교환 발송 버튼으로 해 주세요." };
+  const adminMemo = String(fd.get("adminMemo") || "").trim().slice(0, 500);
+  if (status === "REJECTED" && !adminMemo) return { error: "거절할 때는 고객에게 보일 안내 문구를 적어 주세요." };
+  await prisma.claim.update({
+    where: { id },
+    data: { status, adminMemo, returnTrackingNo: String(fd.get("returnTrackingNo") || "").trim().slice(0, 40) },
+  });
+  revalidatePath("/", "layout");
+  redirect(`/admin/claims/${id}?saved=1`);
+}
+
+/** 반품 완료: 신청 상품만큼 결제 취소(환불) → 신청 완료 */
+export async function refundClaim(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  const id = int(fd.get("id"));
+  const c = await prisma.claim.findUnique({ where: { id } });
+  if (!c || c.type !== "RETURN") return { error: "반품 신청이 아니에요." };
+  if (c.status === "COMPLETED" || c.status === "REJECTED") return { error: "이미 처리된 신청이에요." };
+  const lines = parseLines(c.items).map((l) => ({ itemId: l.itemId, qty: l.qty }));
+  const r = await cancelPayment({
+    orderId: c.orderId,
+    lines,
+    refundShipping: c.sellerFault && fd.get("refundShipping") === "on",
+    restock: fd.get("restock") === "on",
+    deduct: int(fd.get("deduct")),
+    reason: `반품: ${reasonOf(c.reason)?.label ?? c.reason}`,
+    by: "admin",
+  });
+  if (!r.ok) return { error: r.error };
+  await prisma.claim.update({
+    where: { id },
+    data: { status: "COMPLETED", adminMemo: String(fd.get("adminMemo") || "").trim() || `${r.amount.toLocaleString("ko-KR")}원 환불 완료` },
+  });
+  revalidatePath("/", "layout");
+  redirect(`/admin/claims/${id}?saved=1`);
+}
+
+/** 교환 완료: 새 사이즈 재고 차감(+회수 상품 재고 복구 선택) → 발송 송장 기록 → 신청 완료 */
+export async function completeExchange(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  const id = int(fd.get("id"));
+  const c = await prisma.claim.findUnique({ where: { id }, include: { order: { include: { items: true } } } });
+  if (!c || c.type !== "EXCHANGE") return { error: "교환 신청이 아니에요." };
+  if (c.status === "COMPLETED" || c.status === "REJECTED") return { error: "이미 처리된 신청이에요." };
+  const resend = String(fd.get("resendTrackingNo") || "").trim().slice(0, 40);
+  if (!resend) return { error: "교환 상품 발송 송장번호를 적어 주세요." };
+  const restock = fd.get("restock") === "on";
+  const byId = new Map(c.order.items.map((i) => [i.id, i]));
+  try {
+    await prisma.$transaction(async (tx) => {
+      for (const l of parseLines(c.items)) {
+        const it = byId.get(l.itemId);
+        if (!it) continue;
+        const to = l.toOption || it.option;
+        const hasVariants = (await tx.variant.count({ where: { productId: it.productId } })) > 0;
+        if (hasVariants) {
+          const v = await tx.variant.updateMany({
+            where: { productId: it.productId, option: to, stock: { gte: l.qty } },
+            data: { stock: { decrement: l.qty } },
+          });
+          if (v.count === 0) throw new Error(`${it.name} (${to}) 재고가 부족해요.`);
+          if (restock) {
+            await tx.variant.updateMany({ where: { productId: it.productId, option: it.option }, data: { stock: { increment: l.qty } } });
+          }
+          await syncProductStock(tx, it.productId);
+        } else if (!restock) {
+          const r = await tx.product.updateMany({ where: { id: it.productId, stock: { gte: l.qty } }, data: { stock: { decrement: l.qty } } });
+          if (r.count === 0) throw new Error(`${it.name} 재고가 부족해요.`);
+        }
+      }
+      await tx.claim.update({
+        where: { id },
+        data: { status: "COMPLETED", resendTrackingNo: resend, adminMemo: String(fd.get("adminMemo") || "").trim() || "교환 상품을 보내 드렸어요." },
+      });
+    });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "교환 처리 중 문제가 생겼어요." };
+  }
+  revalidatePath("/", "layout");
+  redirect(`/admin/claims/${id}?saved=1`);
 }

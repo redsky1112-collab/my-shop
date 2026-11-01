@@ -371,3 +371,18 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .refund-item.done { opacity: .5; }
 .refund-total { font-size: 16px; margin: 4px 0; } .refund-total b { font-size: 20px; color: var(--accent); }
 .cancel-box { margin-top: 6px; } .cancel-box .form { margin-top: 8px; }
+
+/* 교환·반품 */
+.claim { max-width: 640px; }
+.claim-notice { background: var(--soft); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; line-height: 1.6; }
+.claim-notice p { margin: 0; }
+.claim-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.claim-item input[type="number"] { width: 72px; }
+.claim-item select { width: auto; }
+.claim-photos { display: grid; gap: 6px; }
+.claim-photo { position: relative; width: 72px; height: 96px; display: inline-block; }
+.claim-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+.claim-photo button { position: absolute; top: 2px; right: 2px; border: 0; border-radius: 50%; width: 20px; height: 20px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px; cursor: pointer; }
+.claim-add { width: 72px; height: 96px; border: 2px dashed #ccc; border-radius: 6px; background: var(--soft); cursor: pointer; font-size: 13px; }
+.claim-line { margin: 2px 0; }
+.claim-memo { background: var(--soft); padding: 10px 12px; border-radius: 6px; }

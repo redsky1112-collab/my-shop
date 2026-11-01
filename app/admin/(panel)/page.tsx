@@ -8,7 +8,7 @@ export default async function Dashboard() {
   await requireAdmin();
   const start = new Date();
   start.setHours(0, 0, 0, 0);
-  const [toShip, todayPaid, lowStock, lineCounts] = await Promise.all([
+  const [toShip, todayPaid, lowStock, lineCounts, openClaims] = await Promise.all([
     prisma.order.count({ where: { status: "PAID" } }),
     prisma.order.aggregate({ where: { paidAt: { gte: start } }, _sum: { total: true }, _count: true }),
     // 사이즈별 재고 3개 이하 + 옵션 없는 상품 재고 5개 이하
@@ -23,6 +23,7 @@ export default async function Dashboard() {
       where: { active: true, adultOnly: false, category: { adultOnly: false } },
       _count: { _all: true },
     }),
+    prisma.claim.count({ where: { status: { in: ["REQUESTED", "APPROVED", "COLLECTING"] } } }),
   ]);
   const cnt = (k: string) => lineCounts.find((c) => c.line === k)?._count._all ?? 0;
   const lined = LINES.reduce((s, l) => s + cnt(l.key), 0);
@@ -30,6 +31,7 @@ export default async function Dashboard() {
     <>
       <div className="stats">
         <Link href="/admin/orders?status=PAID" className="stat"><span>배송 대기</span><b>{toShip}건</b></Link>
+        <Link href="/admin/claims" className="stat"><span>교환·반품 처리 중</span><b className={openClaims ? "out" : ""}>{openClaims}건</b></Link>
         <div className="stat"><span>오늘 결제</span><b>{todayPaid._count}건</b></div>
         <div className="stat"><span>오늘 매출</span><b>{won(todayPaid._sum.total || 0)}</b></div>
       </div>

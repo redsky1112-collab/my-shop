@@ -153,9 +153,30 @@ model Order {
   refundedAmount   Int       @default(0)     // 지금까지 환불한 금액 합계
   shippingRefunded Boolean   @default(false) // 배송비를 이미 환불했는지
   canceledAt       DateTime?
+  deliveredAt      DateTime? // 배송완료 처리 시각 (교환·반품 신청 기한 기준)
   createdAt   DateTime    @default(now())
   items       OrderItem[]
   refunds     Refund[]
+  claims      Claim[]
+}
+
+// 교환·반품 신청
+model Claim {
+  id               Int      @id @default(autoincrement())
+  orderId          Int
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type             String   // RETURN(반품) / EXCHANGE(교환)
+  status           String   @default("REQUESTED") // REQUESTED APPROVED COLLECTING COMPLETED REJECTED
+  reason           String
+  sellerFault      Boolean  @default(false) // 불량·오배송 등 판매자 책임 (배송비 판매자 부담)
+  detail           String   @default("")
+  photos           String   @default("") // 쉼표 구분 이미지 주소
+  items            String   // JSON [{itemId, qty, toOption}]
+  returnTrackingNo String   @default("") // 회수 송장
+  resendTrackingNo String   @default("") // 교환 상품 발송 송장
+  adminMemo        String   @default("") // 고객에게 보이는 안내 문구
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // 결제 취소·환불 기록 (부분 취소 포함)

@@ -3,14 +3,16 @@ import { onlyDigits, won } from "@/lib/format";
 import { ORDER_STATUS } from "@/lib/site";
 import CancelButton from "../CancelButton";
 import { customerCancelable } from "@/lib/refund";
+import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
+import Link from "next/link";
 
-export default async function Lookup({ searchParams }: { searchParams: Promise<{ orderNo?: string; phone?: string; canceled?: string }> }) {
+export default async function Lookup({ searchParams }: { searchParams: Promise<{ orderNo?: string; phone?: string; canceled?: string; claimed?: string }> }) {
   const sp = await searchParams;
   const orderNo = (sp.orderNo || "").trim();
   const phone = onlyDigits(sp.phone || "");
   const o =
     orderNo && phone
-      ? await prisma.order.findFirst({ where: { orderNo, buyerPhone: phone }, include: { items: true } })
+      ? await prisma.order.findFirst({ where: { orderNo, buyerPhone: phone }, include: { items: true, claims: { orderBy: { createdAt: "desc" } } } })
       : null;
 
   return (
@@ -42,6 +44,14 @@ export default async function Lookup({ searchParams }: { searchParams: Promise<{
       )}
       {sp.canceled && <p className="form-ok">주문을 취소했어요. 결제 수단으로 환불돼요.</p>}
       {o && customerCancelable(o) && <CancelButton orderNo={o.orderNo} phone={phone} paid={o.status === "PAID"} />}
+      {sp.claimed && <p className="form-ok">교환·반품 신청을 접수했어요. 확인 후 안내해 드릴게요.</p>}
+      {o?.claims.map((c) => (
+        <p key={c.id} className="claim-line small">
+          {CLAIM_TYPES[c.type as "RETURN" | "EXCHANGE"]} 신청 · <b>{CLAIM_STATUS[c.status]}</b>
+          {c.adminMemo && <span className="muted"> — {c.adminMemo}</span>}
+        </p>
+      ))}
+      {o && claimWindow(o).ok && <Link href={`/order/claim/${o.orderNo}?phone=${phone}`} className="btn outline block">교환·반품 신청</Link>}
     </>
   );
 }

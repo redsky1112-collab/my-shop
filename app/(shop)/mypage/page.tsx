@@ -7,17 +7,18 @@ import { ORDER_STATUS } from "@/lib/site";
 import { logout, withdraw } from "../login/actions";
 import CancelButton from "../order/CancelButton";
 import { customerCancelable } from "@/lib/refund";
+import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
 
 const PROVIDER_LABEL: Record<string, string> = { kakao: "카카오", naver: "네이버", demo: "테스트" };
 
-export default async function MyPage({ searchParams }: { searchParams: Promise<{ canceled?: string }> }) {
-  const { canceled } = await searchParams;
+export default async function MyPage({ searchParams }: { searchParams: Promise<{ canceled?: string; claimed?: string }> }) {
+  const { canceled, claimed } = await searchParams;
   const user = await getUser();
   if (!user) redirect("/login?next=/mypage");
 
   const orders = await prisma.order.findMany({
     where: { userId: user.id },
-    include: { items: true },
+    include: { items: true, claims: { orderBy: { createdAt: "desc" } } },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
@@ -39,6 +40,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
       </div>
 
       {canceled && <p className="form-ok">주문을 취소했어요. 결제 수단으로 환불돼요.</p>}
+      {claimed && <p className="form-ok">교환·반품 신청을 접수했어요. 확인 후 안내해 드릴게요.</p>}
       <h3>주문 내역</h3>
       {orders.length === 0 ? (
         <p className="muted">아직 주문이 없어요. <Link href="/" className="link">쇼핑하러 가기</Link></p>
@@ -57,6 +59,14 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
               </div>
               {o.refundedAmount > 0 && <div className="small out">환불 {won(o.refundedAmount)}</div>}
               {customerCancelable(o) && <CancelButton orderNo={o.orderNo} paid={o.status === "PAID"} />}
+              {o.claims.map((c) => (
+                <div key={c.id} className="claim-line small">
+                  {CLAIM_TYPES[c.type as "RETURN" | "EXCHANGE"]} 신청 · <b>{CLAIM_STATUS[c.status]}</b>
+                  {c.adminMemo && <span className="muted"> — {c.adminMemo}</span>}
+                  {c.resendTrackingNo && <span className="muted"> (교환 송장 {c.resendTrackingNo})</span>}
+                </div>
+              ))}
+              {claimWindow(o).ok && <Link href={`/order/claim/${o.orderNo}`} className="link small">교환·반품 신청</Link>}
               {o.status === "PENDING" && (
                 <Link href={`/pay/${o.orderNo}`} className="btn small outline">결제하기</Link>
               )}
