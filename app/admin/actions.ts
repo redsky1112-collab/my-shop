@@ -127,6 +127,31 @@ export async function deactivateProduct(fd: FormData) {
   revalidatePath("/admin/products");
 }
 
+export async function activateProduct(fd: FormData) {
+  await requireAdmin();
+  await prisma.product.update({ where: { id: int(fd.get("id")) }, data: { active: true } });
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
+}
+
+/** 상품 삭제: 주문 기록이 있으면 법정 보관 때문에 삭제 대신 판매중지로 안내 */
+export async function deleteProduct(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  const id = int(fd.get("id"));
+  if (!fd.get("confirm")) return { error: "'삭제할게요'에 체크해 주세요." };
+  const used = await prisma.orderItem.count({ where: { productId: id } });
+  if (used > 0) return { error: `주문 기록(${used}건)이 있는 상품이라 삭제할 수 없어요. 대신 '판매중지'를 눌러 숨겨 주세요.` };
+  try {
+    await prisma.aiJob.deleteMany({ where: { productId: id } });
+    await prisma.product.delete({ where: { id } }); // 사이즈 재고·찜·리뷰·재입고 알림·코디 연결은 함께 삭제
+  } catch (e) {
+    return { error: dbError(e) };
+  }
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
+  redirect("/admin/products?deleted=1");
+}
+
 export async function updateOrder(fd: FormData) {
   await requireAdmin();
   const status = String(fd.get("status"));
