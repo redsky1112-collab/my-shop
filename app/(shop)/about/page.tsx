@@ -17,6 +17,20 @@ export default function About() {
         당당하게 오늘을 살아가는 나와 의상 간의 가장 친밀한 대화(Duologue)입니다.
       </blockquote>
 
+      <h2 className="about-h">WHO WE ARE</h2>
+      <p className="about-lead">
+        DUOLOGUE는 단순히 의류를 판매하는 쇼핑몰이 아닙니다.
+        <br />
+        고객의 <b>취향</b>과 <b>체형</b>, <b>라이프스타일</b>을 이해하고, 자신에게 어울리는 스타일을
+        스스로 선택할 수 있도록 돕는 <b>AI 기반 프리미엄 패션 셀렉트숍</b>입니다.
+      </p>
+      <div className="about-pillars">
+        <div><b>취향</b><span>1분 스타일 진단으로 좋아하는 무드와 핏을 파악해요</span></div>
+        <div><b>체형</b><span>키·몸무게·체형으로 맞는 사이즈를 추천해요</span></div>
+        <div><b>라이프스타일</b><span>출근·주말·특별한 날, 상황에 맞는 코디를 제안해요</span></div>
+      </div>
+      <div className="row center"><Link href="/style-quiz" className="btn outline">1분 스타일 진단 해보기</Link></div>
+
       <h2 className="about-h">CORE PHILOSOPHY</h2>
       <div className="about-cards">
         <div className="about-card">

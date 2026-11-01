@@ -568,3 +568,12 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .quick-buy select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; background: #fff; }
 .quick-buy-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .quick-buy-btns .btn { padding: 9px 4px; font-size: 13px; }
+
+/* ABOUT: WHO WE ARE */
+.about-lead { text-align: center; line-height: 1.9; font-size: 16px; max-width: 640px; margin: 0 auto 24px; word-break: keep-all; }
+.about-lead b { color: var(--green); }
+.about-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 720px; margin: 0 auto 20px; }
+.about-pillars > div { background: var(--soft); border-radius: 8px; padding: 16px 12px; display: grid; gap: 6px; text-align: center; }
+.about-pillars b { color: var(--green); font-size: 15px; }
+.about-pillars span { font-size: 13px; color: #555; line-height: 1.5; }
+@media (max-width: 640px) { .about-pillars { grid-template-columns: 1fr; } }
