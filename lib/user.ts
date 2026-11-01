@@ -10,6 +10,9 @@ export const JOIN_COOKIE = "join_pending"; // 소셜 인증은 끝났지만 약�
 
 export type Provider = "kakao" | "naver";
 
+// 휴대폰에서 복사·붙여넣기 하면 앞뒤 공백·줄바꿈이 섞이는 경우가 많아 잘라냄
+const env = (k: string) => process.env[k]?.trim() || undefined;
+
 // ── 소셜 로그인 설정 (환경변수에 키가 있어야 버튼이 켜짐) ──
 export const PROVIDERS: Record<Provider, {
   label: string;
@@ -21,16 +24,16 @@ export const PROVIDERS: Record<Provider, {
 }> = {
   kakao: {
     label: "카카오",
-    clientId: process.env.KAKAO_REST_API_KEY,
-    clientSecret: process.env.KAKAO_CLIENT_SECRET, // 카카오 콘솔에서 Client Secret을 켠 경우만
+    clientId: env("KAKAO_REST_API_KEY"),
+    clientSecret: env("KAKAO_CLIENT_SECRET"), // 카카오 콘솔에서 Client Secret을 켠 경우만
     authorizeUrl: "https://kauth.kakao.com/oauth/authorize",
     tokenUrl: "https://kauth.kakao.com/oauth/token",
     profileUrl: "https://kapi.kakao.com/v2/user/me",
   },
   naver: {
     label: "네이버",
-    clientId: process.env.NAVER_CLIENT_ID,
-    clientSecret: process.env.NAVER_CLIENT_SECRET,
+    clientId: env("NAVER_CLIENT_ID"),
+    clientSecret: env("NAVER_CLIENT_SECRET"),
     authorizeUrl: "https://nid.naver.com/oauth2.0/authorize",
     tokenUrl: "https://nid.naver.com/oauth2.0/token",
     profileUrl: "https://openapi.naver.com/v1/nid/me",
