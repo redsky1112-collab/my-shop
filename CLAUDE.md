@@ -6,7 +6,7 @@
 - 브랜드: DUOLOGUE (3040 컨템포러리 의류 + 성인 전용 라인 PRIVATE DIALOGUE)
 - 스택: Next.js 15 (App Router) + Prisma 6 + Neon Postgres, Vercel 배포 (main 푸시 = 운영 배포)
 - 정식 도메인: https://www.duologue.co.kr (메인 www, duologue.co.kr → www 자동 이동) — 가비아 구매·Vercel 연결 완료(2026-11-01, A @ 216.198.79.1 / CNAME www → vercel-dns-017)
-  테스트 주소 https://my-shop-sigma-livid.vercel.app 도 계속 작동. 남은 것: 카카오·네이버 개발자센터에 www·apex 콜백 URL 등록 (코드는 origin 자동이라 수정 불필요)
+  테스트 주소 https://my-shop-sigma-livid.vercel.app 도 계속 작동. 카카오·네이버 개발자센터에 www·apex 사이트 도메인·콜백 URL 등록 완료(2026-11-01). 코드는 origin 자동이라 수정 불필요
 - 대표님은 주로 휴대폰으로 작업. 설명은 결론 먼저, 짧고 친근하게, 비교는 표로.
 
 ## 반드시 유지할 것
