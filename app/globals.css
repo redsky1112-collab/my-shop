@@ -471,3 +471,17 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .chip-radio input:focus-visible + span { outline: 2px solid var(--gold); }
 .form .chip-radio { display: inline-flex; }
 .form .chip-radio input { padding: 0; }
+
+/* 찜 */
+.card-wrap { position: relative; min-width: 0; }
+.wish-btn { border: 0; background: none; cursor: pointer; color: var(--green); display: inline-flex; align-items: center; gap: 6px; padding: 0; }
+.wish-btn.card { position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; justify-content: center;
+  background: rgba(255,255,255,.88); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.wish-btn.on { color: #b23a48; }
+.wish-btn.detail { margin-top: 10px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font-size: 14px; }
+.wish-btn.detail.on { border-color: #b23a48; }
+.wish-btn:active svg { transform: scale(.85); }
+.wish-link { position: relative; display: inline-flex; align-items: center; color: inherit; }
+.wish-link .badge { margin-left: 2px; }
+.wish-off { opacity: .45; }
+.wish-note { background: var(--soft); padding: 10px 12px; border-radius: 6px; }

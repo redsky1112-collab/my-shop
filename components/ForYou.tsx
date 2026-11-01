@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Thumb from "./Thumb";
+import WishButton from "./WishButton";
 import { useStyleProfile } from "./useStyleProfile";
 import { RecProduct, recommend, recommendSize, effPrice } from "@/lib/recommend";
 import { STYLES, labelOf, splitTags } from "@/lib/style";
@@ -46,7 +47,8 @@ export default function ForYou({ products, looks, compact }: { products: RecProd
           const size = recommendSize(p, profile);
           const price = effPrice(p);
           return (
-            <Link key={p.id} href={`/product/${p.slug}`} className="card">
+            <div key={p.id} className="card-wrap">
+            <Link href={`/product/${p.slug}`} className="card">
               <Thumb src={p.imageUrl} alt={p.name} />
               <div className="card-body">
                 <div className="card-name">{p.name}</div>
@@ -59,6 +61,8 @@ export default function ForYou({ products, looks, compact }: { products: RecProd
                 </div>
               </div>
             </Link>
+            <WishButton productId={p.id} />
+            </div>
           );
         })}
       </div>

@@ -45,6 +45,7 @@ model Product {
   lookItems   LookItem[]
   variants    Variant[]
   reviews     Review[]
+  wishes      Wish[]
 }
 
 // 옵션(사이즈)별 재고. Product.stock 은 이 합계로 자동 맞춰짐
@@ -123,6 +124,7 @@ model User {
   lastLoginAt DateTime @default(now())
   orders      Order[]
   reviews     Review[]
+  wishes      Wish[]
 
   @@unique([provider, providerId])
 }
@@ -235,4 +237,17 @@ model Review {
   createdAt   DateTime  @default(now())
 
   @@index([productId, hidden])
+}
+
+// 찜 (회원). 비회원은 브라우저에 저장했다가 로그인하면 여기로 합쳐짐
+model Wish {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
 }

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Thumb from "./Thumb";
 import { won } from "@/lib/format";
+import WishButton from "./WishButton";
 
 type P = {
+  id: number;
   name: string;
   slug: string;
   price: number;
@@ -24,6 +26,7 @@ export default function ProductCard({ p, adult, adultOk }: { p: P; adult: boolea
   }
   const sale = p.salePrice && p.salePrice < p.price;
   return (
+    <div className="card-wrap">
     <Link href={`/product/${p.slug}`} className="card">
       <Thumb src={p.imageUrl} alt={p.name} />
       <div className="card-body">
@@ -42,5 +45,7 @@ export default function ProductCard({ p, adult, adultOk }: { p: P; adult: boolea
         {p.stock <= 0 && <div className="soldout">품절</div>}
       </div>
     </Link>
+    <WishButton productId={p.id} />
+    </div>
   );
 }

@@ -27,6 +27,17 @@ export default async function Dashboard() {
   ]);
   const cnt = (k: string) => lineCounts.find((c) => c.line === k)?._count._all ?? 0;
   const lined = LINES.reduce((s, l) => s + cnt(l.key), 0);
+  const topWish = await prisma.wish.groupBy({
+    by: ["productId"],
+    _count: { _all: true },
+    orderBy: { _count: { productId: "desc" } },
+    take: 10,
+  });
+  const wishNames = new Map(
+    (await prisma.product.findMany({ where: { id: { in: topWish.map((w) => w.productId) } }, select: { id: true, name: true } }))
+      .map((p) => [p.id, p.name]),
+  );
+
   return (
     <>
       <div className="stats">
@@ -70,6 +81,16 @@ export default async function Dashboard() {
           </li>
         ))}
         {lowStock.length === 0 && <li className="muted">없음</li>}
+      </ul>
+
+      <h3>찜 많은 상품 TOP 10 (사입·재입고 참고)</h3>
+      <ul>
+        {topWish.map((w) => (
+          <li key={w.productId}>
+            <Link href={`/admin/products/${w.productId}`}>{wishNames.get(w.productId) ?? `상품 #${w.productId}`}</Link> — ♥ {w._count._all}
+          </li>
+        ))}
+        {topWish.length === 0 && <li className="muted">아직 찜이 없어요</li>}
       </ul>
     </>
   );

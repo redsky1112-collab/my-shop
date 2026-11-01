@@ -4,6 +4,7 @@ import { isAdultVerified } from "@/lib/adult";
 import AddToCart from "./AddToCart";
 import Gallery from "./Gallery";
 import Reviews from "./Reviews";
+import WishButton from "@/components/WishButton";
 import { galleryOf } from "@/lib/gallery";
 import { won } from "@/lib/format";
 import Link from "next/link";
@@ -55,6 +56,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           optionStock={optionStockOf(p.variants)}
           fit={p.fit}
         />
+        <WishButton productId={p.id} variant="detail" />
         <div className="gift-banner">
           <QuoteMark size={16} />
           <div>

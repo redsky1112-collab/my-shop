@@ -25,7 +25,7 @@
 ## 완료된 기능 (2026-11-01 기준)
 | 영역 | 내용 | 주요 파일 |
 |---|---|---|
-| 브랜드 | 로고·컬러·ABOUT·모델 배너 슬라이드(관리자 > 메인 배너) | components/Logo, HeroSlider |
+| 브랜드 | 로고(심볼: 각진 머리+꼬리 닫는 따옴표 ”, 2026-11-01 확정 · Logo.tsx QUOTE_GLYPH·app/icon.svg)·컬러·ABOUT·모델 배너 슬라이드(관리자 > 메인 배너) | components/Logo, HeroSlider |
 | 회원 | 카카오·네이버 로그인, 마이페이지, 테스트 로그인(AUTH_DEMO_ALLOW_PROD) | lib/user.ts |
 | 맞춤 추천 | 6단계 진단, 취향·사이즈 추천, 코디 | lib/recommend.ts, style-quiz |
 | 라인 | 상품 라인 지정, 카테고리 라인 탭, 대시보드 목표 비중 | lib/lines.ts |
@@ -38,11 +38,12 @@
 | 상품 사진 | 여러 장(최대 10, 첫 장=대표 imageUrl 자동), 상세 스와이프 갤러리·크게 보기 | lib/gallery.ts, MultiImageUpload, product/[slug]/Gallery |
 | 메인 배너 | 커플 모델 완성 이미지(닫는 따옴표 ” 버전, seed 1회 등록), 배너 '완성 이미지' 모드(full: 안 자름·문구 없음) | prisma/assets, seedMainBanner |
 | 리뷰 | 배송완료 회원 상품 1건당 1개, 별점·사이즈 체감·사진 3장·작성 시점 체형 저장, 상세 "나와 비슷한 체형"(±5cm·±5kg·성별) 필터, 관리자 숨김 | lib/reviews.ts, review/[itemId], product/[slug]/Reviews, admin/reviews |
+| 찜 | 상품 카드·상세 하트, /wishlist, 헤더 ♡ 개수. 비회원=브라우저, 로그인 시 회원(Wish)으로 합침. 대시보드 찜 TOP 10 | components/WishProvider·WishButton, api/wishlist |
 | 관리자 | 상품(사진 업로드·사이즈 재고), 코디, 카테고리, 주문, 교환·반품, 배너 | app/admin |
 
 ## 다음 할 일
 - 확인 필요: 택배사 조회 링크가 실제로 열리는지 (lib/couriers.ts 주소)
-- 2단계(매출): ~~상품 사진 여러 장~~(완료), ~~체형 리뷰~~(완료), 찜, 첫 구매 쿠폰, 재입고 알림
+- 2단계(매출): ~~상품 사진 여러 장~~(완료), ~~체형 리뷰~~(완료), ~~찜~~(완료), 첫 구매 쿠폰, 재입고 알림
 - 3단계(AI): 관리자 AI 착용 화보 생성 → AI 상담 챗봇 → 고객 가상 피팅 (API 키 필요)
 - 오픈 전 행정: 사업자등록, PG 실계약(성인용품 고지), 통신판매업 신고, 약관 실제 내용,
   포트원 본인인증, 네이버 로그인 검수, 오픈 전 AUTH_DEMO_ALLOW_PROD·ADULT_MOCK_ALLOW_PROD 삭제

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getUser } from "@/lib/user";
 import CartBadge from "./CartBadge";
+import { WishBadge } from "./WishButton";
 import Logo from "./Logo";
 
 export default async function Header() {
@@ -29,6 +30,7 @@ export default async function Header() {
         </nav>
         <div className="header-actions">
           <Link href={user ? "/mypage" : "/login"} className="account-link">{user ? "마이" : "로그인"}</Link>
+          <WishBadge />
           <CartBadge />
         </div>
       </div>
