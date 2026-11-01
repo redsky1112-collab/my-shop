@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const prisma = new PrismaClient();
 
@@ -6,6 +8,7 @@ async function main() {
   // 카테고리가 이미 있으면(= 운영 중) 기본 데이터는 건너뜀. 삭제한 샘플이 되살아나지 않게
   await renameLegacy(); // 기존 DB 이름 변경은 매번 확인 (조건이 맞을 때만 한 번 실행됨)
   await migrateVariants(); // 옵션은 있는데 사이즈별 재고가 없는 상품 → 재고를 사이즈에 나눠 담음 (한 번만)
+  await seedMainBanner(); // 대표님이 주신 커플 모델 배너(닫는 따옴표 버전)를 맨 앞에 1회 등록
   await migrateImages(); // 대표 사진만 있는 기존 상품 → 사진 목록(images) 첫 장으로 옮김 (한 번만)
   if ((await prisma.category.count()) === 0) await seedBase();
   else console.log("기존 데이터가 있어 기본 시드를 건너뜁니다.");
@@ -85,6 +88,22 @@ async function migrateImages() {
     if (p.imageUrl) await prisma.product.update({ where: { id: p.id }, data: { images: [p.imageUrl] } });
   }
   if (list.length) console.log(`상품 사진 목록 변환: ${list.length}개 상품`);
+}
+
+// 이미지는 고정 id로 한 번만 저장 → 관리자가 배너를 지워도 다시 생기지 않음
+async function seedMainBanner() {
+  const id = "duologuemainbanner20261101";
+  if (await prisma.image.findUnique({ where: { id }, select: { id: true } })) return;
+  const bytes = new Uint8Array(readFileSync(join(__dirname, "assets", "main-banner-duo.webp")));
+  await prisma.image.create({ data: { id, mime: "image/webp", data: bytes, size: bytes.length, width: 1536, height: 1024 } });
+  const first = await prisma.banner.findFirst({ orderBy: { sort: "asc" }, select: { sort: true } });
+  await prisma.banner.create({
+    data: {
+      imageUrl: `/img/${id}`, full: true, link: "/for-you", sort: (first?.sort ?? 1) - 1, active: true,
+      title: "DUOLOGUE", tagline: "", sub: "",
+    },
+  });
+  console.log("메인 배너(커플 모델) 등록");
 }
 
 async function renameLegacy() {

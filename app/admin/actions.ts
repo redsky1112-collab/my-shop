@@ -206,6 +206,7 @@ export async function saveBanner(fd: FormData): Promise<SaveResult> {
     sub: String(fd.get("sub") || "").trim().slice(0, 100),
     // 우리 사이트 안 주소만 허용
     link: link.startsWith("/") && !link.startsWith("//") ? link : "",
+    full: fd.get("full") === "on",
     sort: int(fd.get("sort")),
     active: fd.get("active") === "on",
   };

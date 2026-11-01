@@ -426,3 +426,6 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .mu-tools button:disabled { opacity: .3; }
 .mu-add { width: 120px; aspect-ratio: 3/4; border: 2px dashed #ccc; border-radius: 6px; background: var(--soft); cursor: pointer;
   display: grid; align-content: center; gap: 6px; text-align: center; white-space: pre-line; padding: 8px; }
+/* 글자가 들어간 완성 배너: 자르지 않고 통째로 */
+.hero-slide.full { height: auto; min-height: 0; background: var(--green); display: flex; align-items: center; }
+.hero-slide.full img { position: static; width: 100%; height: auto; object-fit: contain; }

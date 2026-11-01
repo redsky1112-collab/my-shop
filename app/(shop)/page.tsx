@@ -20,7 +20,7 @@ export default async function Home() {
     where: { active: true },
     orderBy: [{ sort: "asc" }, { id: "asc" }],
     take: 3,
-    select: { id: true, imageUrl: true, tagline: true, title: true, sub: true, link: true },
+    select: { id: true, imageUrl: true, tagline: true, title: true, sub: true, link: true, full: true },
   });
   return (
     <>

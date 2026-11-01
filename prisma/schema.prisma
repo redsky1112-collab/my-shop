@@ -91,6 +91,7 @@ model Banner {
   title     String   @default("") // 큰 제목
   sub       String   @default("") // 한 줄 설명
   link      String   @default("") // 누르면 이동할 주소 (예: /category/outer)
+  full      Boolean  @default(false) // 글자가 들어간 완성 이미지: 자르지 않고 통째로 보여주고 문구를 덧씌우지 않음
   sort      Int      @default(0)
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
