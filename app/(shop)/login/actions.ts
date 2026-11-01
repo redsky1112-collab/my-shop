@@ -27,7 +27,11 @@ export async function demoLogin(fd: FormData) {
 /** 회원 탈퇴: 회원 정보 삭제, 주문 기록은 법정 보관을 위해 연결만 끊고 남김 */
 export async function withdraw() {
   const user = await getUser();
-  if (user) await prisma.user.delete({ where: { id: user.id } });
+  if (user) {
+    // 회원이 신청한 재입고 알림(휴대폰 번호)도 같이 삭제
+    await prisma.restockAlert.deleteMany({ where: { userId: user.id } });
+    await prisma.user.delete({ where: { id: user.id } });
+  }
   (await cookies()).delete(USER_COOKIE);
   revalidatePath("/", "layout");
   redirect("/?bye=1");

@@ -39,11 +39,13 @@
 | 메인 배너 | 커플 모델 완성 이미지(닫는 따옴표 ” 버전, seed 1회 등록), 배너 '완성 이미지' 모드(full: 안 자름·문구 없음) | prisma/assets, seedMainBanner |
 | 리뷰 | 배송완료 회원 상품 1건당 1개, 별점·사이즈 체감·사진 3장·작성 시점 체형 저장, 상세 "나와 비슷한 체형"(±5cm·±5kg·성별) 필터, 관리자 숨김 | lib/reviews.ts, review/[itemId], product/[slug]/Reviews, admin/reviews |
 | 찜 | 상품 카드·상세 하트, /wishlist, 헤더 ♡ 개수. 비회원=브라우저, 로그인 시 회원(Wish)으로 합침. 대시보드 찜 TOP 10 | components/WishProvider·WishButton, api/wishlist |
+| 첫 구매 쿠폰 | 회원·구매이력(PAID~DELIVERED) 없음·상품 3만원↑ → 10%(최대 1만원) 주문서 자동 적용. Order.discount, 결제 승인 때 중복 사용 차단, 부분환불은 할인액 비율 차감(itemsRefund) | lib/coupon.ts, api/orders, lib/refund.ts |
+| 재입고 알림 | 품절 사이즈에 휴대폰+수신동의로 신청(비회원 가능), 관리자 '재입고 알림'에 입고된 건 문구·번호 정리 → 수동 발송 후 '보냄 처리'. 마이페이지 신청 목록, 대시보드 대상 수 | lib/restock.ts, api/restock, components/RestockForm, admin/restock |
 | 관리자 | 상품(사진 업로드·사이즈 재고), 코디, 카테고리, 주문, 교환·반품, 배너 | app/admin |
 
 ## 다음 할 일
 - 확인 필요: 택배사 조회 링크가 실제로 열리는지 (lib/couriers.ts 주소)
-- 2단계(매출): ~~상품 사진 여러 장~~(완료), ~~체형 리뷰~~(완료), ~~찜~~(완료), 첫 구매 쿠폰, 재입고 알림
+- 2단계(매출): ~~상품 사진 여러 장~~(완료), ~~체형 리뷰~~(완료), ~~찜~~(완료), ~~첫 구매 쿠폰~~(완료), ~~재입고 알림~~(완료 · 문자 자동 발송은 솔라피 등 API 키 연결 시)
 - 3단계(AI): 관리자 AI 착용 화보 생성 → AI 상담 챗봇 → 고객 가상 피팅 (API 키 필요)
 - 오픈 전 행정: 사업자등록, PG 실계약(성인용품 고지), 통신판매업 신고, 약관 실제 내용,
   포트원 본인인증, 네이버 로그인 검수, 오픈 전 AUTH_DEMO_ALLOW_PROD·ADULT_MOCK_ALLOW_PROD 삭제

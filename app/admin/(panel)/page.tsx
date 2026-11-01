@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { won } from "@/lib/format";
 import { LINES } from "@/lib/lines";
+import { availableFor } from "@/lib/stock";
 
 export default async function Dashboard() {
   await requireAdmin();
@@ -38,11 +39,20 @@ export default async function Dashboard() {
       .map((p) => [p.id, p.name]),
   );
 
+  // 재입고 알림: 재고가 다시 생긴 대기 신청 수
+  const pendingAlerts = await prisma.restockAlert.findMany({
+    where: { notifiedAt: null },
+    select: { option: true, product: { select: { active: true, stock: true, variants: { select: { option: true, stock: true } } } } },
+    take: 3000,
+  });
+  const restockReady = pendingAlerts.filter((a) => a.product.active && availableFor(a.product, a.option) > 0).length;
+
   return (
     <>
       <div className="stats">
         <Link href="/admin/orders?status=PAID" className="stat"><span>배송 대기</span><b>{toShip}건</b></Link>
         <Link href="/admin/claims" className="stat"><span>교환·반품 처리 중</span><b className={openClaims ? "out" : ""}>{openClaims}건</b></Link>
+        <Link href="/admin/restock" className="stat"><span>재입고 알림 보낼 대상</span><b className={restockReady ? "out" : ""}>{restockReady}명</b></Link>
         <div className="stat"><span>오늘 결제</span><b>{todayPaid._count}건</b></div>
         <div className="stat"><span>오늘 매출</span><b>{won(todayPaid._sum.total || 0)}</b></div>
       </div>

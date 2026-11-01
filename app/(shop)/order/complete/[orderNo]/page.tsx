@@ -23,6 +23,7 @@ export default async function Complete({
       <h1 className="page-title">{o.status === "PAID" ? "주문이 완료되었어요" : `주문 상태: ${ORDER_STATUS[o.status]}`}</h1>
       <div className="summary">
         <div><span>주문번호</span><b>{o.orderNo}</b></div>
+        {o.discount > 0 && <div><span>{o.couponName || "쿠폰 할인"}</span><span className="discount">− {won(o.discount)}</span></div>}
         <div><span>결제금액</span><span>{won(o.total)}</span></div>
       </div>
       <p className="muted">주문번호는 주문조회 때 필요해요.</p>

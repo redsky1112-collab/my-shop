@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { itemsRefund } from "./coupon";
 
 export type CancelLine = { itemId: number; qty: number };
 export type CancelInput = {
@@ -47,7 +48,8 @@ export async function cancelPayment(input: CancelInput): Promise<CancelResult> {
     lines = order.items.map((i) => ({ itemId: i.id, qty: remain.get(i.id) ?? 0 })).filter((l) => l.qty > 0);
   }
   const byId = new Map(order.items.map((i) => [i.id, i]));
-  const itemsAmount = lines.reduce((s, l) => s + (byId.get(l.itemId)?.price ?? 0) * l.qty, 0);
+  // 쿠폰 할인 주문이면 할인액을 상품 금액 비율만큼 빼고 환불
+  const itemsAmount = itemsRefund(lines.reduce((s, l) => s + (byId.get(l.itemId)?.price ?? 0) * l.qty, 0), order);
   const shipping = !full && input.refundShipping && !order.shippingRefunded ? order.shippingFee : 0;
   const gross = full ? balance : Math.min(balance, itemsAmount + shipping);
   const deduct = Math.max(0, Math.floor(input.deduct ?? 0));

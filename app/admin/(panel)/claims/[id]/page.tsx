@@ -1,3 +1,4 @@
+import { itemsRefund } from "@/lib/coupon";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -48,7 +49,7 @@ export default async function ClaimDetail({ params, searchParams }: { params: Pr
             <li key={l.itemId} className="cart-item">
               <div className="grow">
                 <b>{it.name}{it.option && ` (${it.option})`} × {l.qty}</b>
-                <span className="small muted">{won(it.price * l.qty)}</span>
+                <span className="small muted">{won(itemsRefund(it.price * l.qty, o))}{o.discount > 0 && " (쿠폰 할인 나눔 반영)"}</span>
                 {c.type === "EXCHANGE" && l.toOption && (
                   <span>→ <b>{l.toOption}</b>로 교환 <span className={`small ${(v?.stock ?? 0) < l.qty ? "out" : "muted"}`}>(현재 재고 {v?.stock ?? 0})</span></span>
                 )}

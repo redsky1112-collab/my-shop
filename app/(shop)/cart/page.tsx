@@ -5,6 +5,7 @@ import { useCart } from "@/components/CartProvider";
 import Thumb from "@/components/Thumb";
 import { won, shippingFor } from "@/lib/format";
 import { SHIPPING } from "@/lib/site";
+import { FIRST_COUPON } from "@/lib/coupon";
 
 export default function CartPage() {
   const { items, setQty, remove } = useCart();
@@ -46,6 +47,7 @@ export default function CartPage() {
         <div><span>상품금액</span><span>{won(itemsTotal)}</span></div>
         <div><span>배송비</span><span>{ship ? won(ship) : "무료"}</span></div>
         <div className="total"><span>결제예정금액</span><span>{won(itemsTotal + ship)}</span></div>
+        <p className="small muted" style={{ margin: 0 }}>첫 구매라면 주문서에서 {FIRST_COUPON.name}이 자동 적용돼요 (회원, {won(FIRST_COUPON.minItems)} 이상).</p>
         <Link href="/checkout" className="btn block">주문하기</Link>
       </div>
     </>

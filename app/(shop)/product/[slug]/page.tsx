@@ -5,6 +5,7 @@ import AddToCart from "./AddToCart";
 import Gallery from "./Gallery";
 import Reviews from "./Reviews";
 import WishButton from "@/components/WishButton";
+import RestockForm from "@/components/RestockForm";
 import { galleryOf } from "@/lib/gallery";
 import { won } from "@/lib/format";
 import Link from "next/link";
@@ -26,6 +27,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const price = p.salePrice && p.salePrice < p.price ? p.salePrice : p.price;
   const options = p.options.split(",").map((s) => s.trim()).filter(Boolean);
+  // 재입고 알림 대상: 품절된 사이즈 (옵션 없는 상품은 상품 전체 품절일 때 [""])
+  const optStock = optionStockOf(p.variants);
+  const soldOut = options.length
+    ? options.filter((o) => (optStock ? optStock[o] ?? 0 : p.stock) <= 0)
+    : p.stock <= 0 ? [""] : [];
   const chart = parseSizeChart(p.sizeChart);
   const tags = [...splitTags(p.styles).map((s) => labelOf(STYLES, s)), p.fit ? labelOf(FITS, p.fit) : ""].filter(Boolean);
   const looks = p.lookItems.map((li) => li.look).filter((l) => l.active);
@@ -56,6 +62,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           optionStock={optionStockOf(p.variants)}
           fit={p.fit}
         />
+        <RestockForm productId={p.id} soldOut={soldOut} />
         <WishButton productId={p.id} variant="detail" />
         <div className="gift-banner">
           <QuoteMark size={16} />

@@ -34,6 +34,7 @@ export default async function Lookup({ searchParams }: { searchParams: Promise<{
               <span>{won(i.price * i.quantity)}</span>
             </div>
           ))}
+          {o.discount > 0 && <div><span>{o.couponName || "쿠폰 할인"}</span><span className="discount">− {won(o.discount)}</span></div>}
           <div><span>배송비</span><span>{won(o.shippingFee)}</span></div>
           {o.giftWrap && <div><span>선물 포장</span><span>{won(o.giftFee)}</span></div>}
           <div className="total"><span>결제금액</span><span>{won(o.total)}</span></div>

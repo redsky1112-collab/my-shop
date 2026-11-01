@@ -31,6 +31,7 @@ export default async function OrderDetail({
         <div><span>주문자</span><span>{o.buyerName} {o.buyerPhone}</span></div>
         <div><span>결제일</span><span>{o.paidAt ? o.paidAt.toLocaleString("ko-KR") : "결제 전"}</span></div>
         <div><span>상품</span><span>{won(o.itemsTotal)}</span></div>
+        {o.discount > 0 && <div><span>{o.couponName || "쿠폰"}</span><span>− {won(o.discount)}</span></div>}
         <div><span>배송비</span><span>{won(o.shippingFee)}{o.shippingRefunded && " (환불됨)"}</span></div>
         {o.giftWrap && <div><span>선물 포장</span><span>{won(o.giftFee)}</span></div>}
         <div className="total"><span>결제금액</span><span>{won(o.total)}</span></div>
@@ -44,6 +45,8 @@ export default async function OrderDetail({
           paid={paid}
           balance={balance}
           shippingFee={o.shippingRefunded ? 0 : o.shippingFee}
+          discount={o.discount}
+          itemsTotal={o.itemsTotal}
           items={o.items.map((i) => ({
             id: i.id, name: i.name, option: i.option, price: i.price, quantity: i.quantity, remain: i.quantity - i.canceledQty,
           }))}

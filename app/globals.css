@@ -485,3 +485,26 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .wish-link .badge { margin-left: 2px; }
 .wish-off { opacity: .45; }
 .wish-note { background: var(--soft); padding: 10px 12px; border-radius: 6px; }
+
+/* 첫 구매 쿠폰 */
+.discount { color: #b23a48; font-weight: 700; }
+.coupon-opt { display: flex; gap: 10px; align-items: center; padding: 14px; border: 1px solid var(--line); border-left: 3px solid var(--gold); border-radius: 6px; background: #fff; cursor: pointer; }
+.coupon-opt.on { border-color: var(--green); border-left-color: var(--gold); box-shadow: 0 0 0 1px var(--green); }
+.coupon-opt input { width: auto; }
+.coupon-opt > span { display: grid; gap: 2px; flex: 1; }
+.coupon-note { background: var(--soft); padding: 10px 12px; border-radius: 6px; margin: 0; }
+.welcome-coupon { display: flex; gap: 8px; align-items: center; justify-content: center; background: var(--soft); padding: 12px; border-radius: 6px; font-size: 14px; color: var(--green); }
+
+/* 재입고 알림 */
+.restock { margin-top: 10px; }
+.restock-form { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.restock-form input[type="text"], .restock-form input:not([type]) { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; font-size: 16px; }
+.restock-form .check input { width: auto; }
+.restock-done { margin: 10px 0 0; padding: 12px; background: var(--soft); border-left: 3px solid var(--gold); border-radius: 4px; font-size: 14px; }
+.restock-line { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.restock-line .grow { flex: 1; min-width: 0; }
+.restock-groups { display: grid; gap: 12px; }
+.restock-group { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.restock-group.ready { border-left: 4px solid var(--gold); }
+.restock-group label { display: grid; gap: 4px; }
+.restock-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; background: var(--soft); }

@@ -5,11 +5,12 @@ import { newOrderNo, onlyDigits, shippingFor } from "@/lib/format";
 import { GIFT, SHIPPING } from "@/lib/site";
 import { getUser } from "@/lib/user";
 import { availableFor } from "@/lib/stock";
+import { FIRST_COUPON, firstDiscount, PURCHASED } from "@/lib/coupon";
 
 type Body = {
   buyerName: string; buyerPhone: string; buyerEmail: string;
   recipient: string; phone: string; zipcode: string; address1: string; address2?: string; memo?: string;
-  giftWrap?: boolean; giftMessage?: string;
+  giftWrap?: boolean; giftMessage?: string; useFirstCoupon?: boolean;
   items: { productId: number; option: string; quantity: number }[];
 };
 
@@ -78,13 +79,20 @@ export async function POST(req: Request) {
     : lines.length > 1 ? `${lines[0].name} 외 ${lines.length - 1}건` : lines[0].name;
 
   const user = await getUser(); // 로그인 상태면 회원 주문으로 연결 (비회원도 주문 가능)
+  // 첫 구매 쿠폰: 회원 + 구매 이력 없음 + 금액 조건 (서버에서 다시 판단)
+  let discount = 0;
+  if (b.useFirstCoupon === true && user) {
+    const bought = await prisma.order.count({ where: { userId: user.id, status: { in: PURCHASED } } });
+    if (bought === 0) discount = firstDiscount(itemsTotal);
+  }
   const order = await prisma.order.create({
     data: {
       orderNo: newOrderNo(),
       userId: user?.id ?? null,
       buyerName, buyerPhone, buyerEmail, recipient, phone, zipcode, address1, address2, memo,
-      itemsTotal, shippingFee, total: itemsTotal + shippingFee + giftFee,
+      itemsTotal, shippingFee, total: itemsTotal - discount + shippingFee + giftFee,
       giftWrap, giftFee, giftMessage,
+      discount, couponName: discount > 0 ? FIRST_COUPON.name : "",
       orderName: orderName.slice(0, 100),
       hasAdult,
       items: { create: lines },

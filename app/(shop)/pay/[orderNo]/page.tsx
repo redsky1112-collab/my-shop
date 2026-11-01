@@ -16,6 +16,7 @@ export default async function PayPage({ params }: { params: Promise<{ orderNo: s
         <div><span>주문번호</span><span>{o.orderNo}</span></div>
         <div><span>주문명</span><span>{o.orderName}</span></div>
         {o.giftWrap && <div><span>선물 포장</span><span>{won(o.giftFee)}</span></div>}
+        {o.discount > 0 && <div><span>{o.couponName || "쿠폰 할인"}</span><span className="discount">− {won(o.discount)}</span></div>}
         <div className="total"><span>결제금액</span><span>{won(o.total)}</span></div>
       </div>
       <PaymentWidget

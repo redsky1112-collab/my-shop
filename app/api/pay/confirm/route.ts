@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { PURCHASED } from "@/lib/coupon";
 
 /**
  * 토스 결제창 성공 후 리다이렉트되는 곳 (successUrl)
@@ -18,6 +19,12 @@ export async function GET(req: Request) {
   if (!order) return fail("주문을 찾을 수 없어요.");
   if (order.status !== "PENDING") return NextResponse.redirect(new URL(`/order/complete/${orderNo}`, url));
   if (!paymentKey || amount !== order.total) return fail("결제 금액이 주문 금액과 일치하지 않아요.");
+
+  // 첫 구매 쿠폰 주문인데 그사이 다른 주문이 먼저 결제됐으면 쿠폰을 두 번 쓰는 셈 → 결제 막음
+  if (order.discount > 0 && order.userId) {
+    const bought = await prisma.order.count({ where: { userId: order.userId, id: { not: order.id }, status: { in: PURCHASED } } });
+    if (bought > 0) return fail("첫 구매 쿠폰은 첫 주문에만 쓸 수 있어요. 장바구니에서 다시 주문해 주세요.");
+  }
 
   // 2) 재고 선차감 (동시 주문 대비: 재고가 충분할 때만 차감)
   try {

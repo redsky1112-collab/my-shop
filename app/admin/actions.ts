@@ -367,3 +367,13 @@ export async function toggleReview(fd: FormData) {
   revalidatePath(`/product/${r.product.slug}`);
   revalidatePath("/admin/reviews");
 }
+
+// 재입고 알림: 한 상품·옵션의 대기 신청을 '보냄'으로 처리 (문자 발송 후 누름)
+export async function markRestockSent(fd: FormData) {
+  await requireAdmin();
+  await prisma.restockAlert.updateMany({
+    where: { productId: int(fd.get("productId")), option: String(fd.get("option") ?? ""), notifiedAt: null },
+    data: { notifiedAt: new Date() },
+  });
+  revalidatePath("/admin/restock");
+}

@@ -4,14 +4,15 @@ import { useState } from "react";
 import ActionForm, { SubmitButton } from "@/components/ActionForm";
 import { refundOrder } from "../../../actions";
 import { won } from "@/lib/format";
+import { itemsRefund } from "@/lib/coupon";
 
 type Item = { id: number; name: string; option: string; price: number; quantity: number; remain: number };
 
 const REASONS = ["고객 단순 변심", "사이즈 교환 불가(재고 없음)", "상품 불량", "오배송", "품절로 발송 불가", "고객 주문 취소 요청"];
 
 export default function RefundForm({
-  orderId, paid, balance, shippingFee, items,
-}: { orderId: number; paid: boolean; balance: number; shippingFee: number; items: Item[] }) {
+  orderId, paid, balance, shippingFee, items, discount = 0, itemsTotal = 0,
+}: { orderId: number; paid: boolean; balance: number; shippingFee: number; items: Item[]; discount?: number; itemsTotal?: number }) {
   const [mode, setMode] = useState<"full" | "partial">("full");
   const [qty, setQty] = useState<Record<number, number>>({});
   const [ship, setShip] = useState(false);
@@ -19,7 +20,7 @@ export default function RefundForm({
   const [restock, setRestock] = useState(true);
   const [deduct, setDeduct] = useState(0);
 
-  const itemsAmount = items.reduce((s, i) => s + i.price * (qty[i.id] ?? 0), 0);
+  const itemsAmount = itemsRefund(items.reduce((s, i) => s + i.price * (qty[i.id] ?? 0), 0), { discount, itemsTotal });
   const allSelected = items.every((i) => (qty[i.id] ?? 0) >= i.remain);
   const amount = (mode === "full" || allSelected ? balance : Math.min(balance, itemsAmount + (ship ? shippingFee : 0))) - deduct;
 

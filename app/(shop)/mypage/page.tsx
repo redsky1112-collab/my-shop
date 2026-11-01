@@ -9,6 +9,8 @@ import CancelButton from "../order/CancelButton";
 import { customerCancelable } from "@/lib/refund";
 import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
 import { reviewable } from "@/lib/reviews";
+import { availableFor } from "@/lib/stock";
+import { cancelRestock } from "../restock/actions";
 import TrackLink from "@/components/TrackLink";
 
 const PROVIDER_LABEL: Record<string, string> = { kakao: "카카오", naver: "네이버", demo: "테스트" };
@@ -23,6 +25,12 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
     include: { items: { include: { review: { select: { id: true } } } }, claims: { orderBy: { createdAt: "desc" } } },
     orderBy: { createdAt: "desc" },
     take: 50,
+  });
+  const alerts = await prisma.restockAlert.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+    include: { product: { include: { variants: true } } },
   });
 
   return (
@@ -85,6 +93,28 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
             </div>
           ))}
         </div>
+      )}
+
+      {alerts.length > 0 && (
+        <>
+          <h3>재입고 알림 신청</h3>
+          <div className="my-orders">
+            {alerts.map((a) => {
+              const back = a.product.active && availableFor(a.product, a.option) > 0;
+              return (
+                <div key={a.id} className="restock-line">
+                  <Link href={`/product/${a.product.slug}`} className="grow">{a.product.name}{a.option && ` (${a.option})`}</Link>
+                  {back
+                    ? <Link href={`/product/${a.product.slug}`} className="btn small">입고됐어요 · 구매하기</Link>
+                    : <span className="small muted">{a.notifiedAt ? "알림 보냄" : "입고 대기 중"}</span>}
+                  {!back && (
+                    <form action={cancelRestock}><input type="hidden" name="id" value={a.id} /><button className="link small">취소</button></form>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <div className="row between" style={{ marginTop: 40 }}>

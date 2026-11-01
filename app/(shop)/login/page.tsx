@@ -1,3 +1,6 @@
+import { FIRST_COUPON } from "@/lib/coupon";
+import { won } from "@/lib/format";
+import { QuoteMark } from "@/components/Logo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { demoLoginEnabled, getUser, providerEnabled, safeNext } from "@/lib/user";
@@ -24,6 +27,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <div className="login">
       <h1 className="page-title">로그인</h1>
       <p className="muted small">처음이면 자동으로 가입돼요. 별도 비밀번호가 필요 없어요.</p>
+      <p className="welcome-coupon"><QuoteMark size={14} /> 가입하고 첫 주문하면 <b>{FIRST_COUPON.name}</b> (최대 {won(FIRST_COUPON.max)})</p>
       {sp.error && <p className="error">{ERRORS[sp.error] || ERRORS.failed}</p>}
 
       <div className="login-btns">

@@ -46,6 +46,7 @@ model Product {
   variants    Variant[]
   reviews     Review[]
   wishes      Wish[]
+  restockAlerts RestockAlert[]
 }
 
 // 옵션(사이즈)별 재고. Product.stock 은 이 합계로 자동 맞춰짐
@@ -125,6 +126,7 @@ model User {
   orders      Order[]
   reviews     Review[]
   wishes      Wish[]
+  restockAlerts RestockAlert[]
 
   @@unique([provider, providerId])
 }
@@ -153,6 +155,8 @@ model Order {
   giftWrap    Boolean     @default(false) // 선물 포장 선택
   giftFee     Int         @default(0)     // 선물 포장비 (total에 포함)
   giftMessage String      @default("")    // 메시지 카드 문구
+  discount    Int         @default(0)     // 쿠폰 할인액 (total에서 이미 뺀 금액)
+  couponName  String      @default("")    // 적용한 쿠폰 이름 (예: 첫 구매 10% 할인)
   paymentKey  String?
   paidAt      DateTime?
   trackingNo  String?
@@ -250,4 +254,20 @@ model Wish {
 
   @@unique([userId, productId])
   @@index([productId])
+}
+
+// 재입고 알림 신청. 품절 옵션(사이즈)에 신청 → 재고가 다시 생기면 관리자 '재입고 알림'에 발송 대상으로 뜸
+model RestockAlert {
+  id         Int       @id @default(autoincrement())
+  productId  Int
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  option     String    @default("") // 빈칸 = 옵션 없는 상품
+  phone      String    // 숫자만 (문자·알림톡 발송용)
+  userId     Int?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  notifiedAt DateTime? // 알림 보낸 시각 (비어 있으면 대기)
+  createdAt  DateTime  @default(now())
+
+  @@unique([productId, option, phone])
+  @@index([notifiedAt])
 }
