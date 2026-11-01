@@ -543,3 +543,4 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .fitting-login { display: grid; gap: 10px; }
 .fitting .check input { width: auto; flex: none; margin-top: 2px; }
 .fitting .check { align-items: flex-start; }
+.fitting-blocked { margin: 0; padding: 12px; background: var(--soft); border-radius: 6px; font-size: 14px; }

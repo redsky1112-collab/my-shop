@@ -3,6 +3,9 @@
 /** 고객 가상 피팅: 회원 1인당 하루 횟수 */
 export const FITTING_DAILY = 3;
 
+/** 가상 피팅: 사이트 전체 하루 최대 (크레딧 폭주 방지 안전장치, 환경변수 FITTING_GLOBAL_DAILY로 변경 가능) */
+export const FITTING_GLOBAL_DAILY_DEFAULT = 100;
+
 /** 관리자 AI 화보 배경 프리셋 (FASHN에 보내는 영어 프롬프트) */
 export const PHOTO_PRESETS = [
   { key: "studio", label: "스튜디오 (밝은 베이지 배경)", prompt: "full body fashion catalog photo, clean warm beige studio background, soft natural light, contemporary minimal styling" },

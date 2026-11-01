@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { shrink } from "./ImageUpload";
 import { FITTING_DAILY } from "@/lib/ai";
 
-type Info = { enabled: boolean; member?: boolean; left?: number };
+type Info = { enabled: boolean; member?: boolean; left?: number; blocked?: string };
 
 const toDataUri = (blob: Blob) =>
   new Promise<string>((res, rej) => {
@@ -110,6 +110,8 @@ export default function VirtualFitting({ productId, slug }: { productId: number;
                 <p>가상 피팅은 회원 전용이에요. 하루 {FITTING_DAILY}번 무료로 입어 볼 수 있어요.</p>
                 <Link href={`/login?next=/product/${slug}`} className="btn block">로그인하고 입어보기</Link>
               </div>
+            ) : info.blocked ? (
+              <p className="fitting-blocked">{info.blocked}</p>
             ) : (
               <>
                 <p className="small muted" style={{ margin: 0 }}>오늘 남은 횟수 <b>{info.left ?? 0}</b> / {FITTING_DAILY}</p>

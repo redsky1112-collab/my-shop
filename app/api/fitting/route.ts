@@ -4,7 +4,8 @@ import { getUser } from "@/lib/user";
 import { fashnEnabled, fashnRun, toFashnImage } from "@/lib/fashn";
 import { sniff } from "@/lib/image";
 import { galleryOf } from "@/lib/gallery";
-import { FITTING_DAILY } from "@/lib/ai";
+import { FITTING_DAILY, FITTING_GLOBAL_DAILY_DEFAULT } from "@/lib/ai";
+import { isAdmin } from "@/lib/admin";
 
 const bad = (message: string, status = 400) => NextResponse.json({ message }, { status });
 const noStore = { "Cache-Control": "no-store" };
@@ -13,6 +14,18 @@ const noStore = { "Cache-Control": "no-store" };
 function todayKst() {
   const now = Date.now() + 9 * 3600 * 1000;
   return new Date(Math.floor(now / 86400000) * 86400000 - 9 * 3600 * 1000);
+}
+
+const globalLimit = () => Number(process.env.FITTING_GLOBAL_DAILY) || FITTING_GLOBAL_DAILY_DEFAULT;
+
+/** 쓸 수 없는 이유 (없으면 빈 문자열): 테스트 계정은 관리자 브라우저에서만, 사이트 전체 하루 한도 */
+async function blockedReason(user: { provider: string }) {
+  if (user.provider === "demo" && !(await isAdmin())) {
+    return "테스트 계정은 가상 피팅을 쓸 수 없어요. 카카오·네이버로 로그인해 주세요.";
+  }
+  const all = await prisma.aiJob.count({ where: { kind: "fitting", createdAt: { gte: todayKst() }, status: { not: "failed" } } });
+  if (all >= globalLimit()) return "오늘 준비된 가상 피팅이 모두 마감됐어요. 내일 다시 이용해 주세요.";
+  return "";
 }
 
 async function usedToday(userId: number) {
@@ -24,7 +37,11 @@ export async function GET() {
   const user = await getUser();
   if (!fashnEnabled()) return NextResponse.json({ enabled: false }, { headers: noStore });
   if (!user) return NextResponse.json({ enabled: true, member: false, left: 0 }, { headers: noStore });
-  return NextResponse.json({ enabled: true, member: true, left: Math.max(0, FITTING_DAILY - (await usedToday(user.id))) }, { headers: noStore });
+  const blocked = await blockedReason(user);
+  return NextResponse.json(
+    { enabled: true, member: true, blocked, left: blocked ? 0 : Math.max(0, FITTING_DAILY - (await usedToday(user.id))) },
+    { headers: noStore },
+  );
 }
 
 /** 가상 피팅 요청: { productId, photo: data URI } — 고객 사진은 저장하지 않고 FASHN 요청에만 사용 */
@@ -33,6 +50,8 @@ export async function POST(req: Request) {
   const user = await getUser();
   if (!user) return bad("로그인 후 이용할 수 있어요.", 401);
   const b = await req.json().catch(() => ({}));
+  const blocked = await blockedReason(user);
+  if (blocked) return bad(blocked, 403);
   if (b.agree !== true) return bad("사진 이용에 동의해 주세요.");
 
   // 사진 확인: data URI, 실제 이미지인지(매직 넘버), 4MB 이하
