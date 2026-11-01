@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
-  PROVIDERS, STATE_COOKIE, USER_COOKIE, USER_TTL_MS, afterLoginPath, isProvider, makeUserToken, providerEnabled, upsertSocialUser,
+  JOIN_COOKIE, PROVIDERS, STATE_COOKIE, USER_COOKIE, USER_TTL_MS, afterLoginPath, isProvider, makeUserToken, providerEnabled, upsertSocialUser,
   type Provider,
 } from "@/lib/user";
 import { cookieOpts } from "@/lib/adult";
-import { verifyToken } from "@/lib/sign";
+import { signToken, verifyToken } from "@/lib/sign";
+import { prisma } from "@/lib/db";
 
 type Profile = { id: string; name?: string; email?: string; phone?: string };
 
@@ -72,8 +73,24 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
   try {
     const p = await fetchProfile(provider, code, state, `${url.origin}/api/auth/${provider}/callback`);
+    const next = saved.next || "/mypage";
+    const found = await prisma.user.findUnique({
+      where: { provider_providerId: { provider, providerId: p.id } },
+      select: { termsAgreedAt: true },
+    });
+    // 처음 오신 분(또는 약관 동의 기록이 없는 기존 회원) → 가입 동의 화면. 동의 전에는 회원 정보를 만들지 않음
+    if (!found?.termsAgreedAt) {
+      const res = NextResponse.redirect(new URL("/join", url.origin));
+      res.cookies.delete(STATE_COOKIE);
+      res.cookies.set(
+        JOIN_COOKIE,
+        signToken({ provider, providerId: p.id, name: p.name, email: p.email, phone: p.phone, next, exp: Date.now() + 15 * 60 * 1000 }),
+        { ...cookieOpts, maxAge: 15 * 60 },
+      );
+      return res;
+    }
     const user = await upsertSocialUser(provider, p.id, p);
-    const res = NextResponse.redirect(new URL(afterLoginPath(user, saved.next || "/mypage"), url.origin));
+    const res = NextResponse.redirect(new URL(afterLoginPath(user, next), url.origin));
     res.cookies.delete(STATE_COOKIE);
     res.cookies.set(USER_COOKIE, makeUserToken(user.id), { ...cookieOpts, maxAge: USER_TTL_MS / 1000 });
     return res;

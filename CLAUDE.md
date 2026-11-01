@@ -27,7 +27,7 @@
 | 영역 | 내용 | 주요 파일 |
 |---|---|---|
 | 브랜드 | 로고(심볼: 각진 머리+꼬리 닫는 따옴표 ”, 2026-11-01 확정 · Logo.tsx QUOTE_GLYPH·app/icon.svg)·컬러·ABOUT·모델 배너 슬라이드(관리자 > 메인 배너) | components/Logo, HeroSlider |
-| 회원 | 카카오·네이버 로그인, 마이페이지, 테스트 로그인(AUTH_DEMO_ALLOW_PROD) | lib/user.ts |
+| 회원 | 카카오·네이버 로그인 → 첫 로그인 시 /join 약관 동의(만14세·이용약관·개인정보 필수, 마케팅 선택) 후에야 User 생성(termsAgreedAt). 동의 전 정보는 서명 쿠키 join_pending(15분)에만. 마이페이지 소식 받기 on/off. 테스트 로그인은 운영에선 관리자 로그인 브라우저에서만 보임(AUTH_DEMO_ALLOW_PROD) · 관리자는 별도 /admin/login(ADMIN_PASSWORD) | lib/user.ts, app/(shop)/join, login/actions.ts |
 | 맞춤 추천 | 6단계 진단, 취향·사이즈 추천, 코디 | lib/recommend.ts, style-quiz |
 | 라인 | 상품 라인 지정, 카테고리 라인 탭, 대시보드 목표 비중 | lib/lines.ts |
 | 재고 | 사이즈별 재고(Variant), 품절·잔여 표시 | lib/stock.ts |

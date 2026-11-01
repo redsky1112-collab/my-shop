@@ -550,3 +550,8 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .ai-new { display: grid; gap: 6px; }
 .ai-link { color: var(--green); font-weight: 700; white-space: nowrap; }
 .ai-link { display: inline-block; margin-right: 10px; }
+
+/* 회원가입 약관 동의 */
+.join-form { display: grid; gap: 12px; margin-top: 22px; text-align: left; }
+.join-all { padding: 14px; border: 1px solid var(--brand); border-radius: 6px; }
+.join-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 4px; }

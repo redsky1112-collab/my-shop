@@ -122,6 +122,9 @@ model User {
   email       String   @default("")
   phone       String   @default("")
   styleProfile String  @default("") // 스타일 진단 결과(JSON). 비어 있으면 로그인 직후 진단으로 안내
+  termsAgreedAt DateTime? // 회원가입 약관 동의 시각 (비어 있으면 다음 로그인 때 가입 동의 화면)
+  marketingAgree Boolean  @default(false) // [선택] 쿠폰·신상품 소식 수신 동의
+  marketingAgreedAt DateTime?
   createdAt   DateTime @default(now())
   lastLoginAt DateTime @default(now())
   orders      Order[]

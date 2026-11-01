@@ -3,7 +3,7 @@ import { won } from "@/lib/format";
 import { QuoteMark } from "@/components/Logo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { demoLoginEnabled, getUser, providerEnabled, safeNext } from "@/lib/user";
+import { demoLoginVisible, getUser, providerEnabled, safeNext } from "@/lib/user";
 import { demoLogin } from "./actions";
 
 const ERRORS: Record<string, string> = {
@@ -20,13 +20,13 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   const kakao = providerEnabled("kakao");
   const naver = providerEnabled("naver");
-  const demo = demoLoginEnabled();
+  const demo = await demoLoginVisible();
   const q = `?next=${encodeURIComponent(next)}`;
 
   return (
     <div className="login">
       <h1 className="page-title">로그인</h1>
-      <p className="muted small">처음이면 자동으로 가입돼요. 별도 비밀번호가 필요 없어요.</p>
+      <p className="muted small">처음이면 약관 동의 한 번으로 바로 가입돼요. 별도 비밀번호가 필요 없어요.</p>
       <p className="welcome-coupon"><QuoteMark size={14} /> 가입하고 첫 주문하면 <b>{FIRST_COUPON.name}</b> (최대 {won(FIRST_COUPON.max)})</p>
       {sp.error && <p className="error">{ERRORS[sp.error] || ERRORS.failed}</p>}
 
@@ -44,7 +44,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         {demo && (
           <form action={demoLogin}>
             <input type="hidden" name="next" value={next} />
-            <button className="btn outline block">테스트 계정으로 로그인 (시연용)</button>
+            <button className="btn outline block">테스트 계정으로 로그인 (관리자 전용)</button>
           </form>
         )}
       </div>

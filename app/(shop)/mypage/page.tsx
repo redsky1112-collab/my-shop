@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getUser } from "@/lib/user";
 import { won } from "@/lib/format";
 import { ORDER_STATUS } from "@/lib/site";
-import { logout, withdraw } from "../login/actions";
+import { logout, setMarketing, withdraw } from "../login/actions";
 import CancelButton from "../order/CancelButton";
 import { customerCancelable } from "@/lib/refund";
 import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
@@ -41,6 +41,14 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
         <div><span>로그인</span><span>{PROVIDER_LABEL[user.provider] || user.provider}</span></div>
         {user.email && <div><span>이메일</span><span>{user.email}</span></div>}
         <div><span>가입일</span><span>{user.createdAt.toLocaleDateString("ko-KR")}</span></div>
+        <div>
+          <span>소식 받기</span>
+          <form action={setMarketing}>
+            <input type="hidden" name="on" value={user.marketingAgree ? "0" : "1"} />
+            <span>{user.marketingAgree ? "받는 중 · " : "안 받음 · "}</span>
+            <button className="link" style={{ background: "none", border: 0, padding: 0 }}>{user.marketingAgree ? "그만 받기" : "받기"}</button>
+          </form>
+        </div>
         <div>
           <span>스타일 진단</span>
           {user.styleProfile
