@@ -44,6 +44,7 @@ model Product {
   orderItems  OrderItem[]
   lookItems   LookItem[]
   variants    Variant[]
+  reviews     Review[]
 }
 
 // 옵션(사이즈)별 재고. Product.stock 은 이 합계로 자동 맞춰짐
@@ -121,6 +122,7 @@ model User {
   createdAt   DateTime @default(now())
   lastLoginAt DateTime @default(now())
   orders      Order[]
+  reviews     Review[]
 
   @@unique([provider, providerId])
 }
@@ -206,4 +208,31 @@ model OrderItem {
   price     Int
   quantity  Int
   canceledQty Int   @default(0) // 취소·환불된 수량
+  review    Review?
+}
+
+// 구매 후기 (배송완료된 회원 주문 상품 1건당 1개). 체형은 작성 시점 값을 복사해 둠 → "나와 비슷한 체형" 필터
+model Review {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItemId Int       @unique
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  userId      Int?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorName  String    @default("") // 가린 이름 (예: 김*수)
+  rating      Int       // 1~5
+  sizeFeel    String    @default("") // small 작아요 / fit 정사이즈 / big 커요
+  content     String
+  option      String    @default("") // 구매한 옵션(사이즈)
+  photos      String[]  @default([])
+  // ── 작성 시점 체형 (0·빈칸 = 안 알려줌) ──
+  gender      String    @default("") // M / F
+  height      Int       @default(0)
+  weight      Int       @default(0)
+  bodyType    String    @default("") // lib/style.ts BODY_TYPES
+  hidden      Boolean   @default(false) // 관리자 숨김
+  createdAt   DateTime  @default(now())
+
+  @@index([productId, hidden])
 }

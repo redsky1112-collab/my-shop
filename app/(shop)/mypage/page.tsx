@@ -8,18 +8,19 @@ import { logout, withdraw } from "../login/actions";
 import CancelButton from "../order/CancelButton";
 import { customerCancelable } from "@/lib/refund";
 import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
+import { reviewable } from "@/lib/reviews";
 import TrackLink from "@/components/TrackLink";
 
 const PROVIDER_LABEL: Record<string, string> = { kakao: "카카오", naver: "네이버", demo: "테스트" };
 
-export default async function MyPage({ searchParams }: { searchParams: Promise<{ canceled?: string; claimed?: string }> }) {
-  const { canceled, claimed } = await searchParams;
+export default async function MyPage({ searchParams }: { searchParams: Promise<{ canceled?: string; claimed?: string; reviewed?: string }> }) {
+  const { canceled, claimed, reviewed } = await searchParams;
   const user = await getUser();
   if (!user) redirect("/login?next=/mypage");
 
   const orders = await prisma.order.findMany({
     where: { userId: user.id },
-    include: { items: true, claims: { orderBy: { createdAt: "desc" } } },
+    include: { items: { include: { review: { select: { id: true } } } }, claims: { orderBy: { createdAt: "desc" } } },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
@@ -42,6 +43,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
 
       {canceled && <p className="form-ok">주문을 취소했어요. 결제 수단으로 환불돼요.</p>}
       {claimed && <p className="form-ok">교환·반품 신청을 접수했어요. 확인 후 안내해 드릴게요.</p>}
+      {reviewed && <p className="form-ok">리뷰를 등록했어요. 소중한 후기 감사합니다!</p>}
       <h3>주문 내역</h3>
       {orders.length === 0 ? (
         <p className="muted">아직 주문이 없어요. <Link href="/" className="link">쇼핑하러 가기</Link></p>
@@ -66,6 +68,14 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
                   {CLAIM_TYPES[c.type as "RETURN" | "EXCHANGE"]} 신청 · <b>{CLAIM_STATUS[c.status]}</b>
                   {c.adminMemo && <span className="muted"> — {c.adminMemo}</span>}
                   {c.resendTrackingNo && <TrackLink courier={o.courier} trackingNo={c.resendTrackingNo} label="교환 상품 조회" />}
+                </div>
+              ))}
+              {o.items.filter((it) => reviewable(o, it)).map((it) => (
+                <div key={it.id} className="review-line small">
+                  <span>{it.name}{it.option && ` (${it.option})`}</span>
+                  {it.review
+                    ? <span className="muted">리뷰 작성 완료</span>
+                    : <Link href={`/review/${it.id}`} className="btn small outline">리뷰 쓰기</Link>}
                 </div>
               ))}
               {claimWindow(o).ok && <Link href={`/order/claim/${o.orderNo}`} className="link small">교환·반품 신청</Link>}

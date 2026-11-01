@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
 import AddToCart from "./AddToCart";
 import Gallery from "./Gallery";
+import Reviews from "./Reviews";
 import { galleryOf } from "@/lib/gallery";
 import { won } from "@/lib/format";
 import Link from "next/link";
@@ -27,8 +28,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const chart = parseSizeChart(p.sizeChart);
   const tags = [...splitTags(p.styles).map((s) => labelOf(STYLES, s)), p.fit ? labelOf(FITS, p.fit) : ""].filter(Boolean);
   const looks = p.lookItems.map((li) => li.look).filter((l) => l.active);
+  const reviews = (await prisma.review.findMany({
+    where: { productId: p.id, hidden: false },
+    orderBy: { createdAt: "desc" },
+    take: 300,
+  })).map((r) => ({
+    id: r.id, authorName: r.authorName, rating: r.rating, sizeFeel: r.sizeFeel, content: r.content, option: r.option,
+    photos: r.photos, gender: r.gender, height: r.height, weight: r.weight, bodyType: r.bodyType,
+    date: r.createdAt.toLocaleDateString("ko-KR"),
+  }));
 
   return (
+    <>
     <div className={adult ? "detail private" : "detail"}>
       <Gallery images={galleryOf(p)} alt={p.name} />
       <div>
@@ -77,5 +88,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
     </div>
+    <div className={adult ? "private" : ""}>
+      <Reviews reviews={reviews} slug={p.slug} adult={adult} />
+    </div>
+    </>
   );
 }

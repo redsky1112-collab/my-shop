@@ -357,3 +357,13 @@ export async function completeExchange(fd: FormData): Promise<SaveResult> {
   revalidatePath("/", "layout");
   redirect(`/admin/claims/${id}?saved=1`);
 }
+
+// 리뷰 숨김/다시 보이기 (부적절한 글 관리). 지우지 않고 숨기는 걸 기본으로
+export async function toggleReview(fd: FormData) {
+  await requireAdmin();
+  const r = await prisma.review.findUnique({ where: { id: int(fd.get("id")) }, include: { product: { select: { slug: true } } } });
+  if (!r) return;
+  await prisma.review.update({ where: { id: r.id }, data: { hidden: !r.hidden } });
+  revalidatePath(`/product/${r.product.slug}`);
+  revalidatePath("/admin/reviews");
+}

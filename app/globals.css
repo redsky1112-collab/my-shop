@@ -429,3 +429,45 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 /* 글자가 들어간 완성 배너: 자르지 않고 통째로 */
 .hero-slide.full { height: auto; min-height: 0; background: var(--green); display: flex; align-items: center; }
 .hero-slide.full img { position: static; width: 100%; height: auto; object-fit: contain; }
+
+/* 구매 후기 */
+.reviews { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); }
+.reviews-title { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 16px; }
+.stars { color: #b8924a; letter-spacing: 1px; }
+.reviews-summary { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; padding: 16px; background: var(--soft); border-radius: 6px; }
+.reviews-avg { display: grid; justify-items: center; gap: 2px; min-width: 90px; }
+.reviews-avg b { font-size: 34px; line-height: 1; color: var(--green); }
+.feel-bars { flex: 1; min-width: 200px; display: grid; gap: 6px; }
+.feel-bar { display: grid; grid-template-columns: 60px 1fr 40px; align-items: center; gap: 8px; font-size: 13px; }
+.feel-bar i { height: 6px; background: #e4e1da; border-radius: 3px; overflow: hidden; display: block; }
+.feel-bar em { display: block; height: 100%; background: var(--green); }
+.similar-card { display: grid; gap: 4px; width: 100%; text-align: left; margin: 12px 0 0; padding: 14px 16px; border: 1px solid var(--green);
+  border-left: 4px solid var(--gold); border-radius: 6px; background: #fff; color: var(--green); cursor: pointer; font: inherit; }
+p.similar-card { cursor: default; border-color: var(--line); border-left-color: var(--line); }
+.review-tabs { display: flex; gap: 6px; margin: 18px 0 8px; overflow-x: auto; scrollbar-width: none; }
+.review-tabs button { flex: none; padding: 8px 14px; border: 1px solid #ddd; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; }
+.review-tabs button.on { background: var(--green); border-color: var(--green); color: #fff; }
+.review-list { list-style: none; padding: 0; margin: 0 0 14px; }
+.review { padding: 16px 0; border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+.review.off { opacity: .5; }
+.review-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.review-meta span { background: var(--soft); padding: 2px 8px; border-radius: 10px; color: #555; }
+.review-meta .feel { background: #fff; border: 1px solid var(--green); color: var(--green); }
+.review-text { margin: 0; white-space: pre-line; line-height: 1.65; font-size: 14px; }
+.review-photos { display: flex; gap: 6px; }
+.review-photos img { width: 72px; height: 96px; object-fit: cover; border-radius: 4px; display: block; }
+.review-line { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 6px; border-top: 1px dashed var(--line); }
+/* 리뷰 쓰기 */
+.review-write { max-width: 560px; margin: 0 auto; }
+.review-item { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+.review-item img { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; }
+.stars-input { display: flex; gap: 4px; }
+.stars-input button { border: 0; background: none; font-size: 32px; color: #ddd; cursor: pointer; padding: 0 2px; line-height: 1; }
+.stars-input button.on { color: #b8924a; }
+.chip-radio { display: inline-flex; }
+.chip-radio input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chip-radio span { padding: 10px 16px; border: 1px solid #ddd; border-radius: 22px; background: #fff; cursor: pointer; font-size: 14px; }
+.chip-radio input:checked + span { background: var(--green); border-color: var(--green); color: #fff; }
+.chip-radio input:focus-visible + span { outline: 2px solid var(--gold); }
+.form .chip-radio { display: inline-flex; }
+.form .chip-radio input { padding: 0; }
