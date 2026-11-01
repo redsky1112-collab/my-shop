@@ -11,7 +11,13 @@ export default async function Dashboard() {
   const [toShip, todayPaid, lowStock, lineCounts] = await Promise.all([
     prisma.order.count({ where: { status: "PAID" } }),
     prisma.order.aggregate({ where: { paidAt: { gte: start } }, _sum: { total: true }, _count: true }),
-    prisma.product.findMany({ where: { active: true, stock: { lte: 5 } }, orderBy: { stock: "asc" }, take: 10 }),
+    // 사이즈별 재고 3개 이하 + 옵션 없는 상품 재고 5개 이하
+    prisma.product.findMany({
+      where: { active: true, OR: [{ variants: { some: { stock: { lte: 3 } } } }, { variants: { none: {} }, stock: { lte: 5 } }] },
+      include: { variants: { where: { stock: { lte: 3 } }, orderBy: { sort: "asc" } } },
+      orderBy: { stock: "asc" },
+      take: 15,
+    }),
     prisma.product.groupBy({
       by: ["line"],
       where: { active: true, adultOnly: false, category: { adultOnly: false } },
@@ -51,10 +57,15 @@ export default async function Dashboard() {
         </tbody>
       </table>
       {cnt("") > 0 && <p className="small muted">라인 미지정 상품 {cnt("")}개 — 상품 수정에서 라인을 지정해 주세요.</p>}
-      <h3>재고 부족 (5개 이하)</h3>
+      <h3>재고 부족 (사이즈별 3개 이하)</h3>
       <ul>
         {lowStock.map((p) => (
-          <li key={p.id}><Link href={`/admin/products/${p.id}`}>{p.name}</Link> — {p.stock}개</li>
+          <li key={p.id}>
+            <Link href={`/admin/products/${p.id}`}>{p.name}</Link> —{" "}
+            {p.variants.length > 0
+              ? p.variants.map((v) => `${v.option} ${v.stock === 0 ? "품절" : `${v.stock}개`}`).join(" · ")
+              : `${p.stock}개`}
+          </li>
         ))}
         {lowStock.length === 0 && <li className="muted">없음</li>}
       </ul>

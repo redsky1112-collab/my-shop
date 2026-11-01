@@ -42,6 +42,19 @@ model Product {
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
   lookItems   LookItem[]
+  variants    Variant[]
+}
+
+// 옵션(사이즈)별 재고. Product.stock 은 이 합계로 자동 맞춰짐
+model Variant {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  option    String
+  stock     Int     @default(0)
+  sort      Int     @default(0)
+
+  @@unique([productId, option])
 }
 
 // 코디(룩): 여러 상품을 한 세트로 제안

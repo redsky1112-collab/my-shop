@@ -344,3 +344,18 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
   .private-head { margin: -16px -16px 20px; border-radius: 0; padding: 32px 18px 28px; }
   .private-head h1 { font-size: 21px; }
 }
+
+/* 사이즈별 재고 */
+.size-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.size-chip { min-width: 56px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; background: #fff; cursor: pointer;
+  display: grid; justify-items: center; gap: 2px; font-size: 15px; }
+.size-chip small { font-size: 10.5px; color: var(--accent); }
+.size-chip.on { border: 2px solid var(--green); background: #f4f8f6; font-weight: 700; }
+.size-chip.out { color: #bbb; background: var(--soft); text-decoration: line-through; cursor: not-allowed; }
+.size-chip.out small { text-decoration: none; color: #aaa; }
+.size-advice.warn { background: #fff4ec; border-color: #f3d3bd; }
+.out-tag { color: var(--accent); font-size: 14px; }
+.opt-rows { display: grid; gap: 6px; }
+.opt-row { display: grid; grid-template-columns: 1fr 96px 36px 24px; gap: 8px; align-items: center; }
+.opt-row.zero input[name="opt_stock"] { border-color: #f3c6b0; background: #fff8f4; }
+.table .out { color: var(--accent); }

@@ -4,6 +4,7 @@ import { isAdultVerified } from "@/lib/adult";
 import { newOrderNo, onlyDigits, shippingFor } from "@/lib/format";
 import { GIFT, SHIPPING } from "@/lib/site";
 import { getUser } from "@/lib/user";
+import { availableFor } from "@/lib/stock";
 
 type Body = {
   buyerName: string; buyerPhone: string; buyerEmail: string;
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
 
   // 가격·재고·옵션은 반드시 서버(DB) 기준으로 다시 계산
   const ids = [...new Set(b.items.map((i) => Number(i.productId)))];
-  const products = await prisma.product.findMany({ where: { id: { in: ids } }, include: { category: true } });
+  const products = await prisma.product.findMany({ where: { id: { in: ids } }, include: { category: true, variants: true } });
   const map = new Map(products.map((p) => [p.id, p]));
 
   const lines = [];
@@ -48,7 +49,16 @@ export async function POST(req: Request) {
     const opts = p.options.split(",").map((s) => s.trim()).filter(Boolean);
     const option = str(it.option, 50);
     if (opts.length ? !opts.includes(option) : option !== "") return bad(`${p.name}: 옵션을 확인해 주세요.`);
-    if (p.stock < qty) return bad(`${p.name}: 재고가 부족해요. (남은 수량 ${p.stock})`);
+    // 같은 상품·옵션이 여러 줄이면 합쳐서 확인
+    const want = b.items
+      .filter((x) => Number(x.productId) === p.id && str(x.option, 50) === option)
+      .reduce((s, x) => s + Math.floor(Number(x.quantity)), 0);
+    const left = availableFor(p, option);
+    if (left < want) {
+      return bad(left <= 0
+        ? `${p.name}${option ? ` (${option})` : ""}: 품절이에요.`
+        : `${p.name}${option ? ` (${option})` : ""}: 재고가 부족해요. (남은 수량 ${left})`);
+    }
     if (p.adultOnly || p.category.adultOnly) hasAdult = true;
     const price = p.salePrice && p.salePrice < p.price ? p.salePrice : p.price;
     lines.push({ productId: p.id, name: p.name, option, price, quantity: qty });

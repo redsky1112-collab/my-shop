@@ -4,6 +4,7 @@ import { saveProduct } from "../../actions";
 import { FITS, GENDERS, STYLES, splitTags } from "@/lib/style";
 import ImageUpload from "@/components/ImageUpload";
 import { LINES } from "@/lib/lines";
+import OptionStock from "./OptionStock";
 
 type P = {
   id: number; name: string; slug: string; price: number; salePrice: number | null; description: string;
@@ -32,9 +33,15 @@ export default async function ProductForm({ p }: { p?: P }) {
       <div className="row">
         <label>정가<input name="price" type="number" min={1} defaultValue={p?.price} required /></label>
         <label>할인가 (선택)<input name="salePrice" type="number" min={0} defaultValue={p?.salePrice ?? ""} /></label>
-        <label>재고<input name="stock" type="number" min={0} defaultValue={p?.stock ?? 0} required /></label>
       </div>
-      <label>옵션 (쉼표 구분, 예: S,M,L)<input name="options" defaultValue={p?.options} /></label>
+      <OptionStock
+        total={p?.stock ?? 0}
+        init={
+          p?.variants?.length
+            ? [...p.variants].sort((a, b) => a.sort - b.sort).map((v) => ({ option: v.option, stock: v.stock }))
+            : (p?.options ?? "").split(",").map((o) => o.trim()).filter(Boolean).map((o) => ({ option: o, stock: 0 }))
+        }
+      />
       <fieldset className="box">
         <legend>스타일 맞춤 정보 (추천·사이즈 추천에 사용)</legend>
         <div className="row">

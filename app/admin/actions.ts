@@ -9,6 +9,7 @@ import { cookieOpts } from "@/lib/adult";
 import { safeEqual } from "@/lib/sign";
 import { ORDER_STATUS } from "@/lib/site";
 import { lineOf } from "@/lib/lines";
+import { syncProductStock } from "@/lib/stock";
 
 export async function login(_: unknown, fd: FormData): Promise<{ error?: string } | null> {
   const pw = String(fd.get("password") || "");
@@ -60,7 +61,7 @@ export async function saveProduct(fd: FormData): Promise<SaveResult> {
     description: String(fd.get("description") || ""),
     imageUrl: String(fd.get("imageUrl") || "").trim() || null,
     stock: int(fd.get("stock")),
-    options: String(fd.get("options") || "").split(",").map((s) => s.trim()).filter(Boolean).join(","),
+    options: "",
     active: fd.get("active") === "on",
     // 성인 카테고리 상품은 무조건 성인 상품으로 처리
     adultOnly: cat.adultOnly || fd.get("adultOnly") === "on",
@@ -72,12 +73,34 @@ export async function saveProduct(fd: FormData): Promise<SaveResult> {
     colors: String(fd.get("colors") || "").split(",").map((s) => s.trim()).filter(Boolean).join(","),
     sizeChart: String(fd.get("sizeChart") || "").trim(),
   };
+  // 옵션(사이즈)별 재고: opt_name / opt_stock 쌍 (같은 이름은 합침, 빈 이름 제외)
+  const names = fd.getAll("opt_name").map((v) => String(v).trim());
+  const stocks = fd.getAll("opt_stock").map((v) => Math.max(0, int(v)));
+  const variantMap = new Map<string, number>();
+  names.forEach((n, i) => { if (n) variantMap.set(n, (variantMap.get(n) ?? 0) + (stocks.at(i) ?? 0)); });
+  const variants = [...variantMap.entries()].map(([option, stock], sort) => ({ option, stock, sort }));
+  if (variants.length > 0) {
+    data.options = variants.map((v) => v.option).join(",");
+    data.stock = variants.reduce((a, v) => a + v.stock, 0);
+  }
+  if (variants.some((v) => v.option.includes(","))) return { error: "옵션 이름에는 쉼표(,)를 쓸 수 없어요." };
   if (!data.name) return { error: "상품명을 입력해 주세요." };
   if (data.price <= 0) return { error: "정가를 1원 이상으로 입력해 주세요." };
   if (data.salePrice && data.salePrice >= data.price) return { error: "할인가는 정가보다 낮아야 해요." };
   try {
-    if (id) await prisma.product.update({ where: { id }, data });
-    else await prisma.product.create({ data });
+    await prisma.$transaction(async (tx) => {
+      const saved = id ? await tx.product.update({ where: { id }, data }) : await tx.product.create({ data });
+      // 빠진 옵션 삭제 → 남은 옵션은 재고 갱신·새 옵션 추가
+      await tx.variant.deleteMany({ where: { productId: saved.id, option: { notIn: variants.map((v) => v.option) } } });
+      for (const v of variants) {
+        await tx.variant.upsert({
+          where: { productId_option: { productId: saved.id, option: v.option } },
+          update: { stock: v.stock, sort: v.sort },
+          create: { productId: saved.id, ...v },
+        });
+      }
+      await syncProductStock(tx, saved.id);
+    });
   } catch (e) {
     return { error: dbError(e) };
   }

@@ -5,6 +5,7 @@ import { isAdultVerified } from "@/lib/adult";
 import ProductCard from "@/components/ProductCard";
 import { LINES, lineOf } from "@/lib/lines";
 import ForYou from "@/components/ForYou";
+import { optionStockOf } from "@/lib/stock";
 import { QuoteMark } from "@/components/Logo";
 
 export default async function CategoryPage({
@@ -23,6 +24,7 @@ export default async function CategoryPage({
 
   const products = await prisma.product.findMany({
     where: { categoryId: cat.id, active: true },
+    include: { variants: { select: { option: true, stock: true } } },
     orderBy: { createdAt: "desc" },
   });
   const adult = (p: { adultOnly: boolean }) => p.adultOnly || cat.adultOnly;
@@ -54,6 +56,7 @@ export default async function CategoryPage({
         products={products.map((p) => ({
           id: p.id, name: p.name, slug: p.slug, price: p.price, salePrice: p.salePrice, imageUrl: p.imageUrl,
           stock: p.stock, options: p.options, gender: p.gender, styles: p.styles, fit: p.fit,
+          optionStock: optionStockOf(p.variants),
         }))}
         compact
       />}

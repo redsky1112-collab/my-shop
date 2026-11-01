@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   // 카테고리가 이미 있으면(= 운영 중) 기본 데이터는 건너뜀. 삭제한 샘플이 되살아나지 않게
   await renameLegacy(); // 기존 DB 이름 변경은 매번 확인 (조건이 맞을 때만 한 번 실행됨)
+  await migrateVariants(); // 옵션은 있는데 사이즈별 재고가 없는 상품 → 재고를 사이즈에 나눠 담음 (한 번만)
   if ((await prisma.category.count()) === 0) await seedBase();
   else console.log("기존 데이터가 있어 기본 시드를 건너뜁니다.");
   await tagSamples();
@@ -59,6 +60,21 @@ async function seedLooks() {
 }
 
 // 이미 만들어진 DB의 옛 이름을 새 브랜드 이름으로 한 번만 변경 (관리자가 바꾼 이름은 건드리지 않음)
+async function migrateVariants() {
+  const list = await prisma.product.findMany({ where: { options: { not: "" }, variants: { none: {} } } });
+  for (const p of list) {
+    const opts = [...new Set(p.options.split(",").map((s) => s.trim()).filter(Boolean))];
+    if (!opts.length) continue;
+    const each = Math.floor(p.stock / opts.length);
+    const rest = p.stock - each * opts.length;
+    await prisma.variant.createMany({
+      data: opts.map((option, i) => ({ productId: p.id, option, stock: each + (i === 0 ? rest : 0), sort: i })),
+      skipDuplicates: true,
+    });
+  }
+  if (list.length) console.log(`사이즈별 재고 변환: ${list.length}개 상품`);
+}
+
 async function renameLegacy() {
   await prisma.category.updateMany({
     where: { slug: "adult", name: "성인용품" },

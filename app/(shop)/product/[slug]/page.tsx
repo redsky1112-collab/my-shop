@@ -9,12 +9,13 @@ import { parseSizeChart } from "@/lib/recommend";
 import { FITS, STYLES, labelOf, splitTags } from "@/lib/style";
 import { QuoteMark } from "@/components/Logo";
 import { BRAND, GIFT } from "@/lib/site";
+import { optionStockOf } from "@/lib/stock";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = await prisma.product.findUnique({
     where: { slug },
-    include: { category: true, lookItems: { include: { look: true } } },
+    include: { category: true, lookItems: { include: { look: true } }, variants: { orderBy: { sort: "asc" } } },
   });
   if (!p || !p.active) notFound();
   const adult = p.adultOnly || p.category.adultOnly;
@@ -39,6 +40,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           item={{ productId: p.id, slug: p.slug, name: p.name, price, adultOnly: adult, imageUrl: p.imageUrl }}
           options={options}
           stock={p.stock}
+          optionStock={optionStockOf(p.variants)}
           fit={p.fit}
         />
         <div className="gift-banner">

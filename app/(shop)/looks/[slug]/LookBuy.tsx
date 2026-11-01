@@ -13,6 +13,7 @@ import { won } from "@/lib/format";
 type Item = {
   productId: number; slug: string; name: string; price: number; imageUrl: string | null;
   options: string; fit: string; stock: number; category: string;
+  optionStock: Record<string, number> | null;
 };
 
 export default function LookBuy({ items }: { items: Item[] }) {
@@ -31,7 +32,8 @@ export default function LookBuy({ items }: { items: Item[] }) {
     const init: Record<number, string> = {};
     for (const i of items) {
       const r = recommendSize(i, profile);
-      if (r) init[i.productId] = r.size;
+      // 추천 사이즈가 품절이면 자동으로 채우지 않음
+      if (r && (!i.optionStock || (i.optionStock[r.size] ?? 0) > 0)) init[i.productId] = r.size;
     }
     setPicked((p) => ({ ...init, ...p }));
   }, [loaded, profile, items]);
@@ -74,7 +76,10 @@ export default function LookBuy({ items }: { items: Item[] }) {
                 {soldout ? <span className="muted small">품절</span> : opts.length > 0 && (
                   <select value={picked[i.productId] || ""} onChange={(e) => setPicked({ ...picked, [i.productId]: e.target.value })}>
                     <option value="">사이즈</option>
-                    {opts.map((o) => <option key={o} value={o}>{o}</option>)}
+                    {opts.map((o) => {
+                      const n = i.optionStock ? i.optionStock[o] ?? 0 : i.stock;
+                      return <option key={o} value={o} disabled={n <= 0}>{o}{n <= 0 ? " (품절)" : n <= 3 ? ` (${n}개 남음)` : ""}</option>;
+                    })}
                   </select>
                 )}
               </div>

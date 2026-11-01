@@ -23,6 +23,15 @@ export async function GET(req: Request) {
   try {
     await prisma.$transaction(async (tx) => {
       for (const it of order.items) {
+        // 옵션(사이즈)별 재고가 있는 상품이면 그 옵션에서 먼저 차감
+        const hasVariants = (await tx.variant.count({ where: { productId: it.productId } })) > 0;
+        if (hasVariants) {
+          const v = await tx.variant.updateMany({
+            where: { productId: it.productId, option: it.option, stock: { gte: it.quantity } },
+            data: { stock: { decrement: it.quantity } },
+          });
+          if (v.count === 0) throw new Error(`${it.name}${it.option ? ` (${it.option})` : ""} 재고가 부족해요.`);
+        }
         const r = await tx.product.updateMany({
           where: { id: it.productId, stock: { gte: it.quantity } },
           data: { stock: { decrement: it.quantity } },
@@ -36,9 +45,10 @@ export async function GET(req: Request) {
 
   const restoreStock = () =>
     prisma.$transaction(
-      order.items.map((it) =>
-        prisma.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } })
-      )
+      order.items.flatMap((it) => [
+        prisma.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } }),
+        prisma.variant.updateMany({ where: { productId: it.productId, option: it.option }, data: { stock: { increment: it.quantity } } }),
+      ])
     );
 
   // 3) 승인 요청

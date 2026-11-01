@@ -6,7 +6,7 @@ import { deactivateProduct } from "../../actions";
 
 export default async function Products() {
   await requireAdmin();
-  const list = await prisma.product.findMany({ include: { category: true }, orderBy: { createdAt: "desc" } });
+  const list = await prisma.product.findMany({ include: { category: true, variants: { orderBy: { sort: "asc" } } }, orderBy: { createdAt: "desc" } });
   return (
     <>
       <div className="row between">
@@ -21,7 +21,14 @@ export default async function Products() {
               <td><Link href={`/admin/products/${p.id}`}>{p.name}</Link>{(p.adultOnly || p.category.adultOnly) && <span className="r19-mini">19</span>}</td>
               <td>{p.category.name}</td>
               <td>{won(p.salePrice ?? p.price)}</td>
-              <td>{p.stock}</td>
+              <td>
+                <b>{p.stock}</b>
+                {p.variants.length > 0 && (
+                  <div className="small muted">
+                    {p.variants.map((v) => <span key={v.id} className={v.stock === 0 ? "out" : ""}>{v.option} {v.stock} </span>)}
+                  </div>
+                )}
+              </td>
               <td>{p.active ? "판매중" : "중지"}</td>
               <td>
                 {p.active && (

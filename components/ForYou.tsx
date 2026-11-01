@@ -53,7 +53,9 @@ export default function ForYou({ products, looks, compact }: { products: RecProd
                 <div className="card-price"><b>{won(price)}</b></div>
                 <div className="tags">
                   {r.reasons.slice(0, 2).map((t) => <span key={t} className="tag">{t}</span>)}
-                  {size && <span className="tag strong">추천 {size.size}</span>}
+                  {size && (p.optionStock && (p.optionStock[size.size] ?? 0) <= 0
+                    ? <span className="tag">추천 {size.size} 품절</span>
+                    : <span className="tag strong">추천 {size.size}</span>)}
                 </div>
               </div>
             </Link>

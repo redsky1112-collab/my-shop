@@ -4,6 +4,7 @@ export type RecProduct = {
   id: number; name: string; slug: string; price: number; salePrice: number | null;
   imageUrl: string | null; stock: number; options: string;
   gender: string; styles: string; fit: string;
+  optionStock?: Record<string, number> | null; // 사이즈별 재고 (없으면 재고 구분 없음)
 };
 
 export const effPrice = (p: { price: number; salePrice: number | null }) =>
@@ -49,7 +50,7 @@ export function recommend<T extends RecProduct>(list: T[], prof: StyleProfile, l
  * - 하의(숫자 옵션): 평소 허리에 가장 가까운 사이즈
  */
 export function recommendSize(
-  p: { options: string; fit: string },
+  p: { options: string; fit: string; optionStock?: Record<string, number> | null },
   prof: StyleProfile
 ): { size: string; why: string; inStock: boolean } | null {
   const opts = splitTags(p.options);
@@ -58,7 +59,7 @@ export function recommendSize(
   if (opts.every((o) => /^\d+$/.test(o))) {
     const nums = opts.map(Number);
     const best = nums.reduce((a, b) => (Math.abs(b - prof.waist) < Math.abs(a - prof.waist) ? b : a));
-    return { size: String(best), why: `평소 허리 ${prof.waist}인치 기준`, inStock: true };
+    return { size: String(best), why: `평소 허리 ${prof.waist}인치 기준`, inStock: inStockOf(p, String(best)) };
   }
 
   let idx = TOP_SIZES.indexOf(prof.topSize);
@@ -71,7 +72,7 @@ export function recommendSize(
   }
   idx = Math.max(0, Math.min(TOP_SIZES.length - 1, idx));
   const want = TOP_SIZES[idx];
-  if (opts.includes(want)) return { size: want, why: notes.join(", "), inStock: true };
+  if (opts.includes(want)) return { size: want, why: notes.join(", "), inStock: inStockOf(p, want) };
   // 원하는 사이즈가 없으면 가장 가까운 것
   const avail = opts.filter((o) => TOP_SIZES.includes(o));
   if (!avail.length) return null;
@@ -79,6 +80,12 @@ export function recommendSize(
     Math.abs(TOP_SIZES.indexOf(b) - idx) < Math.abs(TOP_SIZES.indexOf(a) - idx) ? b : a
   );
   return { size: near, why: `${notes.join(", ")} (원래 추천 ${want}은 없음)`, inStock: false };
+}
+
+/** 추천 사이즈의 재고가 남아 있는지 (사이즈별 재고가 없으면 있다고 봄) */
+function inStockOf(p: { optionStock?: Record<string, number> | null }, size: string) {
+  if (!p.optionStock) return true;
+  return (p.optionStock[size] ?? 0) > 0;
 }
 
 /** 실측 CSV → 표 */
