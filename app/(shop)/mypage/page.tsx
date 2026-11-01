@@ -5,10 +5,13 @@ import { getUser } from "@/lib/user";
 import { won } from "@/lib/format";
 import { ORDER_STATUS } from "@/lib/site";
 import { logout, withdraw } from "../login/actions";
+import CancelButton from "../order/CancelButton";
+import { customerCancelable } from "@/lib/refund";
 
 const PROVIDER_LABEL: Record<string, string> = { kakao: "카카오", naver: "네이버", demo: "테스트" };
 
-export default async function MyPage() {
+export default async function MyPage({ searchParams }: { searchParams: Promise<{ canceled?: string }> }) {
+  const { canceled } = await searchParams;
   const user = await getUser();
   if (!user) redirect("/login?next=/mypage");
 
@@ -35,6 +38,7 @@ export default async function MyPage() {
         </div>
       </div>
 
+      {canceled && <p className="form-ok">주문을 취소했어요. 결제 수단으로 환불돼요.</p>}
       <h3>주문 내역</h3>
       {orders.length === 0 ? (
         <p className="muted">아직 주문이 없어요. <Link href="/" className="link">쇼핑하러 가기</Link></p>
@@ -51,6 +55,8 @@ export default async function MyPage() {
                 <span className="small muted">{o.trackingNo ? `송장 ${o.trackingNo}` : ""}</span>
                 <b>{won(o.total)}</b>
               </div>
+              {o.refundedAmount > 0 && <div className="small out">환불 {won(o.refundedAmount)}</div>}
+              {customerCancelable(o) && <CancelButton orderNo={o.orderNo} paid={o.status === "PAID"} />}
               {o.status === "PENDING" && (
                 <Link href={`/pay/${o.orderNo}`} className="btn small outline">결제하기</Link>
               )}

@@ -150,8 +150,25 @@ model Order {
   paymentKey  String?
   paidAt      DateTime?
   trackingNo  String?
+  refundedAmount   Int       @default(0)     // 지금까지 환불한 금액 합계
+  shippingRefunded Boolean   @default(false) // 배송비를 이미 환불했는지
+  canceledAt       DateTime?
   createdAt   DateTime    @default(now())
   items       OrderItem[]
+  refunds     Refund[]
+}
+
+// 결제 취소·환불 기록 (부분 취소 포함)
+model Refund {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount     Int
+  reason     String
+  detail     String   @default("") // 취소한 상품 요약 (예: "울 코트(M) ×1")
+  restocked  Boolean  @default(true)
+  by         String   @default("admin") // admin / customer
+  createdAt  DateTime @default(now())
 }
 
 model OrderItem {
@@ -164,4 +181,5 @@ model OrderItem {
   option    String  @default("")
   price     Int
   quantity  Int
+  canceledQty Int   @default(0) // 취소·환불된 수량
 }

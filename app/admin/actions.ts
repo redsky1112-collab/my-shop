@@ -10,6 +10,7 @@ import { safeEqual } from "@/lib/sign";
 import { ORDER_STATUS } from "@/lib/site";
 import { lineOf } from "@/lib/lines";
 import { syncProductStock } from "@/lib/stock";
+import { cancelPayment } from "@/lib/refund";
 
 export async function login(_: unknown, fd: FormData): Promise<{ error?: string } | null> {
   const pw = String(fd.get("password") || "");
@@ -118,11 +119,36 @@ export async function updateOrder(fd: FormData) {
   await requireAdmin();
   const status = String(fd.get("status"));
   if (!ORDER_STATUS[status]) return;
+  const id = int(fd.get("id"));
+  const cur = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+  if (!cur) return;
+  // 취소는 반드시 환불 화면에서 (결제된 주문을 상태만 '취소'로 바꾸면 돈이 환불되지 않음)
+  const nextStatus = cur.status === "CANCELED" ? "CANCELED" : status === "CANCELED" && cur.status !== "PENDING" ? cur.status : status;
   await prisma.order.update({
-    where: { id: int(fd.get("id")) },
-    data: { status, trackingNo: String(fd.get("trackingNo") || "").trim() || null },
+    where: { id },
+    data: { status: nextStatus, trackingNo: String(fd.get("trackingNo") || "").trim() || null },
   });
   revalidatePath("/admin/orders");
+}
+
+export async function refundOrder(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  const orderId = int(fd.get("orderId"));
+  const mode = String(fd.get("mode")); // full / partial
+  const lines = mode === "partial"
+    ? fd.getAll("itemId").map((v, i) => ({ itemId: int(v), qty: int(fd.getAll("qty").at(i) ?? null) }))
+    : undefined;
+  const r = await cancelPayment({
+    orderId,
+    lines,
+    refundShipping: fd.get("refundShipping") === "on",
+    restock: fd.get("restock") === "on",
+    reason: String(fd.get("reason") || ""),
+    by: "admin",
+  });
+  if (!r.ok) return { error: r.error };
+  revalidatePath("/", "layout");
+  redirect(`/admin/orders/${orderId}?done=${r.amount}`);
 }
 
 export async function addCategory(fd: FormData) {

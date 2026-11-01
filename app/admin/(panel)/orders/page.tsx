@@ -22,15 +22,21 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
         <tbody>
           {orders.map((o) => (
             <tr key={o.id}>
-              <td>{o.orderNo}<br /><span className="muted small">{o.createdAt.toLocaleString("ko-KR")}</span></td>
+              <td><Link href={`/admin/orders/${o.id}`}>{o.orderNo}</Link><br /><span className="muted small">{o.createdAt.toLocaleString("ko-KR")}</span></td>
               <td>{o.items.map((i) => <div key={i.id}>{i.name}{i.option && ` (${i.option})`} × {i.quantity}</div>)}{o.hasAdult && <span className="r19-mini">19</span>}{o.giftWrap && <div className="gift-tag small">🎁 선물 포장{o.giftMessage && `: “${o.giftMessage}”`}</div>}</td>
-              <td>{won(o.total)}</td>
+              <td>
+                {won(o.total)}
+                {o.refundedAmount > 0 && <div className="small out">환불 {won(o.refundedAmount)}</div>}
+                {o.status !== "CANCELED" && <div><Link href={`/admin/orders/${o.id}`} className="link">취소·환불</Link></div>}
+              </td>
               <td>{o.recipient} {o.phone}<br /><span className="small">[{o.zipcode}] {o.address1} {o.address2}</span>{o.memo && <div className="muted small">메모: {o.memo}</div>}</td>
               <td>
                 <form action={updateOrder} className="inline-form">
                   <input type="hidden" name="id" value={o.id} />
                   <select name="status" defaultValue={o.status}>
-                    {Object.entries(ORDER_STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    {Object.entries(ORDER_STATUS)
+                      .filter(([k]) => k !== "CANCELED" || o.status === "CANCELED" || o.status === "PENDING")
+                      .map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                   <input name="trackingNo" placeholder="송장번호" defaultValue={o.trackingNo ?? ""} />
                   <button className="btn small">저장</button>

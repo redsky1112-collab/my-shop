@@ -359,3 +359,15 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .opt-row { display: grid; grid-template-columns: 1fr 96px 36px 24px; gap: 8px; align-items: center; }
 .opt-row.zero input[name="opt_stock"] { border-color: #f3c6b0; background: #fff8f4; }
 .table .out { color: var(--accent); }
+
+/* 취소·환불 */
+.form-ok { background: #edf7f1; color: var(--green); border: 1px solid #cfe6d9; border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.out { color: var(--accent); }
+.refund { border: 1px solid var(--line); border-radius: 8px; padding: 16px; background: #fff; margin: 16px 0; }
+.refund h3 { margin: 0 0 4px; }
+.refund-items { display: grid; gap: 8px; }
+.refund-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.refund-item input[type="number"] { width: 72px; }
+.refund-item.done { opacity: .5; }
+.refund-total { font-size: 16px; margin: 4px 0; } .refund-total b { font-size: 20px; color: var(--accent); }
+.cancel-box { margin-top: 6px; } .cancel-box .form { margin-top: 8px; }
