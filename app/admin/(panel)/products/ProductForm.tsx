@@ -10,6 +10,7 @@ type P = {
   id: number; name: string; slug: string; price: number; salePrice: number | null; description: string;
   imageUrl: string | null; stock: number; options: string; active: boolean; adultOnly: boolean; categoryId: number;
   line: string; gender: string; styles: string; fit: string; colors: string; sizeChart: string;
+  variants?: { option: string; stock: number; sort: number }[];
 };
 
 export default async function ProductForm({ p }: { p?: P }) {
