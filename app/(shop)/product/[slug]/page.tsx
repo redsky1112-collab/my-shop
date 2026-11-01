@@ -1,8 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { isAdultVerified } from "@/lib/adult";
-import Thumb from "@/components/Thumb";
 import AddToCart from "./AddToCart";
+import Gallery from "./Gallery";
+import { galleryOf } from "@/lib/gallery";
 import { won } from "@/lib/format";
 import Link from "next/link";
 import { parseSizeChart } from "@/lib/recommend";
@@ -29,7 +30,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className={adult ? "detail private" : "detail"}>
-      <Thumb src={p.imageUrl} alt={p.name} />
+      <Gallery images={galleryOf(p)} alt={p.name} />
       <div>
         <div className="muted">{p.category.name}{adult && <span className="r19-mini">19</span>}</div>
         <h1 className="detail-name">{p.name}</h1>

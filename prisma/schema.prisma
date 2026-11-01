@@ -25,7 +25,8 @@ model Product {
   price       Int
   salePrice   Int?
   description String      @default("")
-  imageUrl    String?
+  imageUrl    String?     // 대표 사진 (= images 첫 장, 목록·장바구니용)
+  images      String[]    @default([]) // 상품 사진 여러 장 (순서대로, 첫 장이 대표)
   stock       Int         @default(0)
   options     String      @default("") // 쉼표 구분 옵션 (예: "S,M,L")
   active      Boolean     @default(true)

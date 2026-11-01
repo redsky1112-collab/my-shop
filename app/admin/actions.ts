@@ -13,6 +13,7 @@ import { syncProductStock } from "@/lib/stock";
 import { cancelPayment } from "@/lib/refund";
 import { parseLines, reasonOf } from "@/lib/claims";
 import { COURIERS } from "@/lib/couriers";
+import { MAX_PRODUCT_IMAGES } from "@/lib/gallery";
 
 export async function login(_: unknown, fd: FormData): Promise<{ error?: string } | null> {
   const pw = String(fd.get("password") || "");
@@ -56,13 +57,18 @@ export async function saveProduct(fd: FormData): Promise<SaveResult> {
   const cat = await prisma.category.findUnique({ where: { id: categoryId } });
   if (!cat) return { error: "카테고리를 선택해 주세요." };
   const sale = int(fd.get("salePrice"));
+  // 상품 사진 여러 장: 사이트 내부 주소(/img/..) 또는 https 주소만, 중복 제거, 최대 10장. 첫 장이 대표 사진
+  const images = [...new Set(fd.getAll("images").map((v) => String(v).trim()))]
+    .filter((u) => /^\/(?!\/)\S+$/.test(u) || /^https:\/\/\S+$/i.test(u));
+  if (images.length > MAX_PRODUCT_IMAGES) return { error: `상품 사진은 ${MAX_PRODUCT_IMAGES}장까지 올릴 수 있어요.` };
   const data = {
     name: String(fd.get("name") || "").trim(),
     slug: slugOr(fd.get("slug"), "p"),
     price: int(fd.get("price")),
     salePrice: sale > 0 ? sale : null,
     description: String(fd.get("description") || ""),
-    imageUrl: String(fd.get("imageUrl") || "").trim() || null,
+    imageUrl: images[0] ?? null,
+    images,
     stock: int(fd.get("stock")),
     options: "",
     active: fd.get("active") === "on",

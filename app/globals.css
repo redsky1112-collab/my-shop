@@ -390,3 +390,39 @@ fieldset.box legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 /* 배송조회 */
 .track { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .summary .track { justify-content: flex-end; }
+
+/* 상품 사진 여러 장 — 상세 갤러리 */
+.gallery { display: grid; gap: 8px; min-width: 0; }
+.gallery-main { position: relative; }
+.gallery-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 6px; background: var(--soft); }
+.gallery-track::-webkit-scrollbar { display: none; }
+.gallery-slide { flex: 0 0 100%; scroll-snap-align: start; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.gallery-slide img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.gallery-count { position: absolute; right: 10px; bottom: 10px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; padding: 3px 9px; border-radius: 12px; }
+.gallery-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; border: 0;
+  background: rgba(255,255,255,.85); color: var(--green); font-size: 22px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.gallery-nav.prev { left: 8px; } .gallery-nav.next { right: 8px; }
+.gallery-nav:disabled { opacity: 0; pointer-events: none; }
+@media (hover: none) { .gallery-main > .gallery-nav { display: none; } } /* 휴대폰은 손가락으로 넘기기 */
+.gallery-thumbs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.gallery-thumbs button { flex: 0 0 56px; padding: 0; border: 2px solid transparent; border-radius: 4px; overflow: hidden; background: var(--soft); cursor: pointer; }
+.gallery-thumbs button.on { border-color: var(--green); }
+.gallery-thumbs img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.gallery-zoom { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.92); display: flex; align-items: center; justify-content: center; }
+.gallery-zoom img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.gallery-close { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff; font-size: 18px; cursor: pointer; }
+.gallery-zoom .gallery-count { bottom: 16px; right: 50%; transform: translateX(50%); }
+.detail.private .gallery-thumbs button.on { border-color: #6b1f2a; }
+
+/* 관리자 — 상품 사진 여러 장 */
+.multi-upload { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px; border-radius: 8px; }
+.multi-upload.drag { outline: 2px dashed var(--brand); background: #eee; }
+.mu-item { position: relative; width: 120px; aspect-ratio: 3/4; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--soft); }
+.mu-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mu-busy { display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #777; }
+.mu-main { position: absolute; top: 6px; left: 6px; background: var(--green); color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 10px; }
+.mu-tools { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 2px; padding: 4px; background: rgba(0,0,0,.5); }
+.mu-tools button { border: 0; background: rgba(255,255,255,.9); border-radius: 4px; font-size: 11px; padding: 4px 6px; cursor: pointer; line-height: 1; }
+.mu-tools button:disabled { opacity: .3; }
+.mu-add { width: 120px; aspect-ratio: 3/4; border: 2px dashed #ccc; border-radius: 6px; background: var(--soft); cursor: pointer;
+  display: grid; align-content: center; gap: 6px; text-align: center; white-space: pre-line; padding: 8px; }

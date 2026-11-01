@@ -6,6 +6,7 @@ async function main() {
   // 카테고리가 이미 있으면(= 운영 중) 기본 데이터는 건너뜀. 삭제한 샘플이 되살아나지 않게
   await renameLegacy(); // 기존 DB 이름 변경은 매번 확인 (조건이 맞을 때만 한 번 실행됨)
   await migrateVariants(); // 옵션은 있는데 사이즈별 재고가 없는 상품 → 재고를 사이즈에 나눠 담음 (한 번만)
+  await migrateImages(); // 대표 사진만 있는 기존 상품 → 사진 목록(images) 첫 장으로 옮김 (한 번만)
   if ((await prisma.category.count()) === 0) await seedBase();
   else console.log("기존 데이터가 있어 기본 시드를 건너뜁니다.");
   await tagSamples();
@@ -73,6 +74,17 @@ async function migrateVariants() {
     });
   }
   if (list.length) console.log(`사이즈별 재고 변환: ${list.length}개 상품`);
+}
+
+async function migrateImages() {
+  const list = await prisma.product.findMany({
+    where: { imageUrl: { not: null }, images: { isEmpty: true } },
+    select: { id: true, imageUrl: true },
+  });
+  for (const p of list) {
+    if (p.imageUrl) await prisma.product.update({ where: { id: p.id }, data: { images: [p.imageUrl] } });
+  }
+  if (list.length) console.log(`상품 사진 목록 변환: ${list.length}개 상품`);
 }
 
 async function renameLegacy() {

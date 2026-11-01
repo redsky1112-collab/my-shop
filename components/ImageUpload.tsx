@@ -33,6 +33,19 @@ export async function shrink(file: File): Promise<Shrunk> {
   return { blob, w, h };
 }
 
+/** 사진 1장을 줄여서 관리자 업로드 → /img/{id} 주소 반환 (실패 시 throw) */
+export async function uploadImage(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("이미지 파일만 올릴 수 있어요.");
+  const { blob, w, h } = await shrink(file);
+  const fd = new FormData();
+  const ext = blob.type.split("/")[1] || "jpg";
+  fd.append("file", blob, `upload.${ext}`);
+  const res = await fetch(`/api/admin/upload?w=${w}&h=${h}`, { method: "POST", body: fd });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "업로드에 실패했어요.");
+  return data.url as string;
+}
+
 export default function ImageUpload({
   name = "imageUrl",
   defaultValue,
@@ -52,20 +65,9 @@ export default function ImageUpload({
   async function upload(file: File | undefined) {
     if (!file) return;
     setError("");
-    if (!file.type.startsWith("image/")) {
-      setError("이미지 파일만 올릴 수 있어요.");
-      return;
-    }
     setBusy(true);
     try {
-      const { blob, w, h } = await shrink(file);
-      const fd = new FormData();
-      const ext = blob.type.split("/")[1] || "jpg";
-      fd.append("file", blob, `upload.${ext}`);
-      const res = await fetch(`/api/admin/upload?w=${w}&h=${h}`, { method: "POST", body: fd });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || "업로드에 실패했어요.");
-      setUrl(data.url);
+      setUrl(await uploadImage(file));
     } catch (e) {
       setError(e instanceof Error ? e.message : "업로드에 실패했어요.");
     } finally {
