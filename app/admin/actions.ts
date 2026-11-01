@@ -295,6 +295,27 @@ export async function saveLook(fd: FormData): Promise<SaveResult> {
   redirect("/admin/looks");
 }
 
+export async function setLookActive(fd: FormData) {
+  await requireAdmin();
+  await prisma.look.update({ where: { id: int(fd.get("id")) }, data: { active: fd.get("on") === "1" } });
+  revalidatePath("/admin/looks");
+  revalidatePath("/", "layout");
+}
+
+/** 코디 삭제: 묶인 상품은 그대로 두고 코디(묶음)만 삭제 */
+export async function deleteLook(fd: FormData): Promise<SaveResult> {
+  await requireAdmin();
+  if (!fd.get("confirm")) return { error: "'삭제할게요'에 체크해 주세요." };
+  try {
+    await prisma.look.delete({ where: { id: int(fd.get("id")) } });
+  } catch (e) {
+    return { error: dbError(e) };
+  }
+  revalidatePath("/admin/looks");
+  revalidatePath("/", "layout");
+  redirect("/admin/looks?deleted=1");
+}
+
 // ── 교환·반품 처리 ──
 const CLAIM_NEXT = ["REQUESTED", "APPROVED", "COLLECTING", "REJECTED"];
 

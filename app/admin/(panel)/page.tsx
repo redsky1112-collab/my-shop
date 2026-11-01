@@ -8,8 +8,11 @@ import { WON_PER_CREDIT } from "@/lib/ai";
 
 export default async function Dashboard() {
   await requireAdmin();
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
+  // '오늘'·'이번 달'은 한국 시간 기준 (서버는 UTC라 그냥 자정을 쓰면 오전 9시가 기준이 됨)
+  const KST = 9 * 60 * 60 * 1000;
+  const k = new Date(Date.now() + KST);
+  const start = new Date(Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate()) - KST);
+  const monthStart0 = new Date(Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), 1) - KST);
   const [toShip, todayPaid, lowStock, lineCounts, openClaims] = await Promise.all([
     prisma.order.count({ where: { status: "PAID" } }),
     prisma.order.aggregate({ where: { paidAt: { gte: start } }, _sum: { total: true }, _count: true }),
@@ -27,6 +30,16 @@ export default async function Dashboard() {
     }),
     prisma.claim.count({ where: { status: { in: ["REQUESTED", "APPROVED", "COLLECTING"] } } }),
   ]);
+  // 매출은 결제액에서 환불액을 뺀 '순매출' (환불은 환불한 날 기준으로 차감)
+  const [todayRefund, monthPaid, monthRefund] = await Promise.all([
+    prisma.refund.aggregate({ where: { createdAt: { gte: start } }, _sum: { amount: true }, _count: true }),
+    prisma.order.aggregate({ where: { paidAt: { gte: monthStart0 } }, _sum: { total: true } }),
+    prisma.refund.aggregate({ where: { createdAt: { gte: monthStart0 } }, _sum: { amount: true } }),
+  ]);
+  const todayGross = todayPaid._sum.total || 0;
+  const todayRef = todayRefund._sum.amount || 0;
+  const monthGross = monthPaid._sum.total || 0;
+  const monthRef = monthRefund._sum.amount || 0;
   const cnt = (k: string) => lineCounts.find((c) => c.line === k)?._count._all ?? 0;
   const lined = LINES.reduce((s, l) => s + cnt(l.key), 0);
   const topWish = await prisma.wish.groupBy({
@@ -49,7 +62,7 @@ export default async function Dashboard() {
   const restockReady = pendingAlerts.filter((a) => a.product.active && availableFor(a.product, a.option) > 0).length;
 
   // AI(FASHN) 이번 달 사용량 (실패 제외)
-  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const monthStart = monthStart0;
   const aiUse = await prisma.aiJob.groupBy({
     by: ["kind"],
     where: { createdAt: { gte: monthStart }, status: { not: "failed" } },
@@ -65,9 +78,10 @@ export default async function Dashboard() {
         <Link href="/admin/orders?status=PAID" className="stat"><span>배송 대기</span><b>{toShip}건</b></Link>
         <Link href="/admin/claims" className="stat"><span>교환·반품 처리 중</span><b className={openClaims ? "out" : ""}>{openClaims}건</b></Link>
         <Link href="/admin/restock" className="stat"><span>재입고 알림 보낼 대상</span><b className={restockReady ? "out" : ""}>{restockReady}명</b></Link>
-        <div className="stat"><span>오늘 결제</span><b>{todayPaid._count}건</b></div>
+        <div className="stat"><span>오늘 결제</span><b>{todayPaid._count}건</b>{todayRefund._count > 0 && <span className="small muted">환불 {todayRefund._count}건</span>}</div>
         <div className="stat"><span>이번 달 AI 사용</span><b>{aiCredits}크레딧</b><span className="small muted">가상 피팅 {fittingCount}회 · 약 {(aiCredits * WON_PER_CREDIT).toLocaleString("ko-KR")}원</span></div>
-        <div className="stat"><span>오늘 매출</span><b>{won(todayPaid._sum.total || 0)}</b></div>
+        <div className="stat"><span>오늘 순매출</span><b>{won(todayGross - todayRef)}</b><span className="small muted">결제 {won(todayGross)}{todayRef > 0 && ` · 환불 −${won(todayRef)}`}</span></div>
+        <div className="stat"><span>이번 달 순매출</span><b>{won(monthGross - monthRef)}</b><span className="small muted">결제 {won(monthGross)}{monthRef > 0 && ` · 환불 −${won(monthRef)}`}</span></div>
       </div>
       <h3>라인 구성 (판매중 상품 기준)</h3>
       <table className="table line-mix">
