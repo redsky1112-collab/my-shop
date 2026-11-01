@@ -54,22 +54,33 @@ async function fetchProfile(provider: Provider, code: string, state: string, red
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   const { provider } = await params;
   const url = new URL(req.url);
-  const fail = (code: string) => {
-    const res = NextResponse.redirect(new URL(`/login?error=${code}`, url.origin));
+  // why: 원인 파악용 짧은 코드(로그인 화면 하단에 작게 표시)
+  const fail = (code: string, why = "") => {
+    console.error(`[login:${provider}] ${code} ${why}`);
+    const q = why ? `&why=${encodeURIComponent(why.slice(0, 120))}` : "";
+    const res = NextResponse.redirect(new URL(`/login?error=${code}${q}`, url.origin));
     res.cookies.delete(STATE_COOKIE);
     return res;
   };
   if (!isProvider(provider) || !providerEnabled(provider)) return fail("disabled");
 
   // 사용자가 동의 화면에서 취소한 경우
-  if (url.searchParams.get("error")) return fail("canceled");
+  const perr = url.searchParams.get("error");
+  if (perr) {
+    const desc = url.searchParams.get("error_description") || "";
+    // 사용자가 직접 취소한 경우만 '취소', 그 외(설정 오류 등)는 실패로 표시
+    const canceled = /access_denied|cancel/i.test(perr + desc);
+    return fail(canceled ? "canceled" : "failed", `provider: ${perr} ${desc}`.trim());
+  }
 
   const code = url.searchParams.get("code") || "";
   const state = url.searchParams.get("state") || "";
   const saved = verifyToken<{ state: string; provider: string; next: string; exp: number }>(
     (await cookies()).get(STATE_COOKIE)?.value,
   );
-  if (!code || !saved || saved.state !== state || saved.provider !== provider) return fail("state");
+  if (!code) return fail("failed", "no code");
+  if (!saved) return fail("state", "no state cookie");
+  if (saved.state !== state || saved.provider !== provider) return fail("state", "state mismatch");
 
   try {
     const p = await fetchProfile(provider, code, state, `${url.origin}/api/auth/${provider}/callback`);
@@ -95,7 +106,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     res.cookies.set(USER_COOKIE, makeUserToken(user.id), { ...cookieOpts, maxAge: USER_TTL_MS / 1000 });
     return res;
   } catch (e) {
-    console.error(`[login:${provider}]`, e);
-    return fail("failed");
+    return fail("failed", e instanceof Error ? e.message : String(e));
   }
 }

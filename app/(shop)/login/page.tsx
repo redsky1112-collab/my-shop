@@ -13,7 +13,7 @@ const ERRORS: Record<string, string> = {
   failed: "로그인에 실패했어요. 잠시 후 다시 시도해 주세요.",
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; why?: string }> }) {
   const sp = await searchParams;
   const next = safeNext(sp.next);
   if (await getUser()) redirect(next);
@@ -29,6 +29,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <p className="muted small">처음이면 약관 동의 한 번으로 바로 가입돼요. 별도 비밀번호가 필요 없어요.</p>
       <p className="welcome-coupon"><QuoteMark size={14} /> 가입하고 첫 주문하면 <b>{FIRST_COUPON.name}</b> (최대 {won(FIRST_COUPON.max)})</p>
       {sp.error && <p className="error">{ERRORS[sp.error] || ERRORS.failed}</p>}
+      {sp.error && sp.why && <p className="small muted">오류 코드: {sp.why.slice(0, 120)}</p>}
 
       <div className="login-btns">
         {kakao ? (
