@@ -41,7 +41,7 @@
 | 찜 | 상품 카드·상세 하트, /wishlist, 헤더 ♡ 개수. 비회원=브라우저, 로그인 시 회원(Wish)으로 합침. 대시보드 찜 TOP 10 | components/WishProvider·WishButton, api/wishlist |
 | 첫 구매 쿠폰 | 회원·구매이력(PAID~DELIVERED) 없음·상품 3만원↑ → 10%(최대 1만원) 주문서 자동 적용. Order.discount, 결제 승인 때 중복 사용 차단, 부분환불은 할인액 비율 차감(itemsRefund) | lib/coupon.ts, api/orders, lib/refund.ts |
 | 재입고 알림 | 품절 사이즈에 휴대폰+수신동의로 신청(비회원 가능), 관리자 '재입고 알림'에 입고된 건 문구·번호 정리 → 수동 발송 후 '보냄 처리'. 마이페이지 신청 목록, 대시보드 대상 수 | lib/restock.ts, api/restock, components/RestockForm, admin/restock |
-| AI (FASHN) | 키만 넣으면 작동: Vercel 환경변수 FASHN_API_KEY (없으면 고객 버튼 숨김·관리자 안내). 관리자 상품 수정 › 'AI 화보·가상 피팅'(product-to-model: 옷 사진→AI 모델 착용컷, 배경 프리셋·브랜드 얼굴 고정, 마음에 드는 결과만 상품 사진으로 복사 저장 / 피팅용 옷 사진 지정). 고객 상세 '✨ AI 가상 피팅'(tryon-max fast 1k=1크레딧, 회원·하루 3회·실패는 미차감, 고객 사진 DB 미저장). AiJob 기록, 대시보드 이번 달 크레딧 | lib/fashn.ts, lib/ai.ts, api/admin/ai/*, api/fitting, components/VirtualFitting, admin/products/[id]/ai |
+| AI (FASHN) | 키만 넣으면 작동: Vercel 환경변수 FASHN_API_KEY (없으면 고객 버튼 숨김·관리자 안내). 관리자 상품 수정 › 'AI 화보·가상 피팅'(product-to-model: 옷 사진→AI 모델 착용컷, 배경 프리셋·브랜드 얼굴 고정, 마음에 드는 결과만 상품 사진으로 복사 저장 / 피팅용 옷 사진 지정). 고객 상세 '✨ AI 가상 피팅'(tryon-max fast 1k=1크레딧, 회원·하루 3회·실패는 미차감, 고객 사진 DB 미저장, 테스트(demo) 계정은 관리자 로그인 브라우저에서만, 사이트 전체 하루 100회 한도=FITTING_GLOBAL_DAILY). AiJob 기록, 대시보드 이번 달 크레딧 | lib/fashn.ts, lib/ai.ts, api/admin/ai/*, api/fitting, components/VirtualFitting, admin/products/[id]/ai |
 | 관리자 | 상품(사진 업로드·사이즈 재고), 코디, 카테고리, 주문, 교환·반품, 배너 | app/admin |
 
 ## 다음 할 일
