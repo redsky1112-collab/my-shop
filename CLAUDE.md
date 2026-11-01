@@ -41,6 +41,7 @@
 | 찜 | 상품 카드·상세 하트, /wishlist, 헤더 ♡ 개수. 비회원=브라우저, 로그인 시 회원(Wish)으로 합침. 대시보드 찜 TOP 10 | components/WishProvider·WishButton, api/wishlist |
 | 첫 구매 쿠폰 | 회원·구매이력(PAID~DELIVERED) 없음·상품 3만원↑ → 10%(최대 1만원) 주문서 자동 적용. Order.discount, 결제 승인 때 중복 사용 차단, 부분환불은 할인액 비율 차감(itemsRefund) | lib/coupon.ts, api/orders, lib/refund.ts |
 | 재입고 알림 | 품절 사이즈에 휴대폰+수신동의로 신청(비회원 가능), 관리자 '재입고 알림'에 입고된 건 문구·번호 정리 → 수동 발송 후 '보냄 처리'. 마이페이지 신청 목록, 대시보드 대상 수 | lib/restock.ts, api/restock, components/RestockForm, admin/restock |
+| AI (FASHN) | 키만 넣으면 작동: Vercel 환경변수 FASHN_API_KEY (없으면 고객 버튼 숨김·관리자 안내). 관리자 상품 수정 › 'AI 화보·가상 피팅'(product-to-model: 옷 사진→AI 모델 착용컷, 배경 프리셋·브랜드 얼굴 고정, 마음에 드는 결과만 상품 사진으로 복사 저장 / 피팅용 옷 사진 지정). 고객 상세 '✨ AI 가상 피팅'(tryon-max fast 1k=1크레딧, 회원·하루 3회·실패는 미차감, 고객 사진 DB 미저장). AiJob 기록, 대시보드 이번 달 크레딧 | lib/fashn.ts, lib/ai.ts, api/admin/ai/*, api/fitting, components/VirtualFitting, admin/products/[id]/ai |
 | 관리자 | 상품(사진 업로드·사이즈 재고), 코디, 카테고리, 주문, 교환·반품, 배너 | app/admin |
 
 ## 다음 할 일
@@ -55,7 +56,9 @@
   1) 사입 전후 API 키 발급 → 2) 같은 가상 피팅 API로 '관리자 AI 화보'+'고객 가상 피팅' 함께 개발 →
   3) 오픈 홍보 = "가상 피팅 + 첫 구매 10%" → 4) AI 상담 챗봇은 그다음
   가상 피팅 조건: 회원 전용·하루 3회 제한, "AI 예시, 실제 핏과 다를 수 있음" 안내, 사진 업로드 동의 + 생성 후 원본 자동 삭제,
-  PRIVATE 제외, 상품은 옷만 찍힌 정면 사진 필요(사입 시 도매처 사진 확보). API는 비교표 보고 대표님이 결정 예정
+  PRIVATE 제외, 상품은 옷만 찍힌 정면 사진 필요(사입 시 도매처 사진 확보).
+  → FASHN으로 결정·개발 완료(2026-11-01). 남은 것: 대표님 FASHN 가입·크레딧 충전·키 등록 후 실사용 테스트,
+    개인정보처리방침에 '가상 피팅 사진 국외 처리 위탁(FASHN)' 문구 추가(약관 정리 때), 챗봇은 그다음
 - 오픈 전 행정: 사업자등록, PG 실계약(성인용품 고지), 통신판매업 신고, 약관 실제 내용,
   포트원 본인인증, 네이버 로그인 검수, 오픈 전 AUTH_DEMO_ALLOW_PROD·ADULT_MOCK_ALLOW_PROD 삭제
 - 사업기획서(docx) 6-4~6-6, 7-4에 자사몰 현황·AI 활용안·6개월 판단 기준 반영됨

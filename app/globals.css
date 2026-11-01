@@ -508,3 +508,38 @@ p.similar-card { cursor: default; border-color: var(--line); border-left-color: 
 .restock-group.ready { border-left: 4px solid var(--gold); }
 .restock-group label { display: grid; gap: 4px; }
 .restock-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; background: var(--soft); }
+
+/* AI 화보 (관리자) */
+.ai-studio { display: grid; gap: 18px; }
+.ai-off { padding: 14px 16px; border: 1px solid var(--gold); border-radius: 8px; background: #fffbf0; }
+.ai-off ol { margin: 8px 0 0; padding-left: 18px; line-height: 1.8; }
+.ai-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 12px; }
+.ai-thumbs button { position: relative; width: 72px; aspect-ratio: 3/4; padding: 0; border: 2px solid transparent; border-radius: 6px; overflow: hidden; background: var(--soft); cursor: pointer; }
+.ai-thumbs button.on { border-color: var(--green); }
+.ai-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ai-thumbs span { position: absolute; left: 0; right: 0; bottom: 0; background: var(--green); color: #fff; font-size: 10px; text-align: center; padding: 2px 0; }
+.ai-face { display: flex; gap: 12px; align-items: center; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
+.ai-face img, .ai-face-empty { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--soft); flex: none; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #999; }
+.ai-job { padding: 12px 0; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.ai-loading { padding: 18px; text-align: center; background: var(--soft); border-radius: 6px; font-size: 14px; }
+.ai-results { display: flex; flex-wrap: wrap; gap: 10px; }
+.ai-result { width: 150px; display: grid; gap: 6px; }
+.ai-result img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 6px; display: block; }
+
+/* AI 가상 피팅 (고객) */
+.fitting { margin-top: 10px; }
+.fitting-open { width: 100%; display: grid; gap: 2px; text-align: left; padding: 14px 16px; border: 0; border-radius: 8px; cursor: pointer;
+  background: var(--green); color: #fff; font: inherit; }
+.fitting-open b { color: var(--gold); letter-spacing: .02em; }
+.fitting-modal { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.55); display: flex; align-items: flex-end; justify-content: center; }
+.fitting-panel { width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; background: #fff; border-radius: 14px 14px 0 0; padding: 18px; display: grid; gap: 12px; }
+@media (min-width: 761px) { .fitting-modal { align-items: center; } .fitting-panel { border-radius: 14px; } }
+.fitting-photo { position: relative; width: 100%; aspect-ratio: 3/4; max-height: 52vh; border: 2px dashed #ccc; border-radius: 10px; background: var(--soft);
+  display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; overflow: hidden; font: inherit; padding: 0; }
+.fitting-photo.has { border-style: solid; border-color: var(--line); }
+.fitting-photo img { width: 100%; height: 100%; object-fit: contain; }
+.fitting-result { display: grid; gap: 10px; }
+.fitting-result img { width: 100%; border-radius: 10px; display: block; }
+.fitting-login { display: grid; gap: 10px; }
+.fitting .check input { width: auto; flex: none; margin-top: 2px; }
+.fitting .check { align-items: flex-start; }

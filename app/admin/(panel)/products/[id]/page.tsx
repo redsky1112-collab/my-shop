@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
@@ -8,5 +9,13 @@ export default async function EditProduct({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const p = await prisma.product.findUnique({ where: { id: Number(id) }, include: { variants: true } });
   if (!p) notFound();
-  return (<><h1 className="page-title">상품 수정</h1><ProductForm p={p} /></>);
+  return (
+    <>
+      <div className="row between">
+        <h1 className="page-title">상품 수정</h1>
+        <Link href={`/admin/products/${p.id}/ai`} className="btn small outline">✨ AI 화보 · 가상 피팅</Link>
+      </div>
+      <ProductForm p={p} />
+    </>
+  );
 }

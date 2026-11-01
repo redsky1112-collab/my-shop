@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin";
 import { won } from "@/lib/format";
 import { LINES } from "@/lib/lines";
 import { availableFor } from "@/lib/stock";
+import { WON_PER_CREDIT } from "@/lib/ai";
 
 export default async function Dashboard() {
   await requireAdmin();
@@ -47,6 +48,17 @@ export default async function Dashboard() {
   });
   const restockReady = pendingAlerts.filter((a) => a.product.active && availableFor(a.product, a.option) > 0).length;
 
+  // AI(FASHN) 이번 달 사용량 (실패 제외)
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const aiUse = await prisma.aiJob.groupBy({
+    by: ["kind"],
+    where: { createdAt: { gte: monthStart }, status: { not: "failed" } },
+    _sum: { credits: true },
+    _count: { _all: true },
+  });
+  const aiCredits = aiUse.reduce((s, a) => s + (a._sum.credits ?? 0), 0);
+  const fittingCount = aiUse.find((a) => a.kind === "fitting")?._count._all ?? 0;
+
   return (
     <>
       <div className="stats">
@@ -54,6 +66,7 @@ export default async function Dashboard() {
         <Link href="/admin/claims" className="stat"><span>교환·반품 처리 중</span><b className={openClaims ? "out" : ""}>{openClaims}건</b></Link>
         <Link href="/admin/restock" className="stat"><span>재입고 알림 보낼 대상</span><b className={restockReady ? "out" : ""}>{restockReady}명</b></Link>
         <div className="stat"><span>오늘 결제</span><b>{todayPaid._count}건</b></div>
+        <div className="stat"><span>이번 달 AI 사용</span><b>{aiCredits}크레딧</b><span className="small muted">가상 피팅 {fittingCount}회 · 약 {(aiCredits * WON_PER_CREDIT).toLocaleString("ko-KR")}원</span></div>
         <div className="stat"><span>오늘 매출</span><b>{won(todayPaid._sum.total || 0)}</b></div>
       </div>
       <h3>라인 구성 (판매중 상품 기준)</h3>

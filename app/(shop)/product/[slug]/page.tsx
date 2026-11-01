@@ -6,6 +6,7 @@ import Gallery from "./Gallery";
 import Reviews from "./Reviews";
 import WishButton from "@/components/WishButton";
 import RestockForm from "@/components/RestockForm";
+import VirtualFitting from "@/components/VirtualFitting";
 import { galleryOf } from "@/lib/gallery";
 import { won } from "@/lib/format";
 import Link from "next/link";
@@ -62,6 +63,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           optionStock={optionStockOf(p.variants)}
           fit={p.fit}
         />
+        {!adult && <VirtualFitting productId={p.id} slug={p.slug} />}
         <RestockForm productId={p.id} soldOut={soldOut} />
         <WishButton productId={p.id} variant="detail" />
         <div className="gift-banner">
