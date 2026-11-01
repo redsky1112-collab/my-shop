@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin";
 import { won } from "@/lib/format";
 import { CLAIM_STATUS, CLAIM_TYPES, parseLines, reasonOf, returnFee } from "@/lib/claims";
 import ActionForm, { SubmitButton } from "@/components/ActionForm";
+import TrackLink from "@/components/TrackLink";
 import { completeExchange, refundClaim, updateClaim } from "../../../actions";
 
 export default async function ClaimDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
@@ -115,7 +116,8 @@ export default async function ClaimDetail({ params, searchParams }: { params: Pr
         </>
       )}
       {done && c.adminMemo && <p className="claim-memo">안내: {c.adminMemo}</p>}
-      {c.resendTrackingNo && <p className="small">교환 발송 송장 {c.resendTrackingNo}</p>}
+      {c.returnTrackingNo && <p><TrackLink courier={o.courier} trackingNo={c.returnTrackingNo} label="회수 조회" /></p>}
+      {c.resendTrackingNo && <p><TrackLink courier={o.courier} trackingNo={c.resendTrackingNo} label="교환 발송 조회" /></p>}
     </>
   );
 }

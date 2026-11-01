@@ -5,6 +5,7 @@ import CancelButton from "../CancelButton";
 import { customerCancelable } from "@/lib/refund";
 import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
 import Link from "next/link";
+import TrackLink from "@/components/TrackLink";
 
 export default async function Lookup({ searchParams }: { searchParams: Promise<{ orderNo?: string; phone?: string; canceled?: string; claimed?: string }> }) {
   const sp = await searchParams;
@@ -39,7 +40,7 @@ export default async function Lookup({ searchParams }: { searchParams: Promise<{
           {o.refundedAmount > 0 && <div><span>환불 금액</span><b className="out">{won(o.refundedAmount)}</b></div>}
           <div><span>받는 분</span><span>{o.recipient}</span></div>
           <div><span>주소</span><span>{o.address1} {o.address2}</span></div>
-          {o.trackingNo && <div><span>송장번호</span><span>{o.trackingNo}</span></div>}
+          {o.trackingNo && o.status !== "CANCELED" && <div><span>배송</span><TrackLink courier={o.courier} trackingNo={o.trackingNo} /></div>}
         </div>
       )}
       {sp.canceled && <p className="form-ok">주문을 취소했어요. 결제 수단으로 환불돼요.</p>}
@@ -49,6 +50,7 @@ export default async function Lookup({ searchParams }: { searchParams: Promise<{
         <p key={c.id} className="claim-line small">
           {CLAIM_TYPES[c.type as "RETURN" | "EXCHANGE"]} 신청 · <b>{CLAIM_STATUS[c.status]}</b>
           {c.adminMemo && <span className="muted"> — {c.adminMemo}</span>}
+          {c.resendTrackingNo && <> <TrackLink courier={o?.courier} trackingNo={c.resendTrackingNo} label="교환 상품 조회" /></>}
         </p>
       ))}
       {o && claimWindow(o).ok && <Link href={`/order/claim/${o.orderNo}?phone=${phone}`} className="btn outline block">교환·반품 신청</Link>}

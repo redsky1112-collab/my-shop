@@ -12,6 +12,7 @@ import { lineOf } from "@/lib/lines";
 import { syncProductStock } from "@/lib/stock";
 import { cancelPayment } from "@/lib/refund";
 import { parseLines, reasonOf } from "@/lib/claims";
+import { COURIERS } from "@/lib/couriers";
 
 export async function login(_: unknown, fd: FormData): Promise<{ error?: string } | null> {
   const pw = String(fd.get("password") || "");
@@ -124,12 +125,17 @@ export async function updateOrder(fd: FormData) {
   const cur = await prisma.order.findUnique({ where: { id }, select: { status: true } });
   if (!cur) return;
   // 취소는 반드시 환불 화면에서 (결제된 주문을 상태만 '취소'로 바꾸면 돈이 환불되지 않음)
-  const nextStatus = cur.status === "CANCELED" ? "CANCELED" : status === "CANCELED" && cur.status !== "PENDING" ? cur.status : status;
+  let nextStatus = cur.status === "CANCELED" ? "CANCELED" : status === "CANCELED" && cur.status !== "PENDING" ? cur.status : status;
+  const trackingNo = String(fd.get("trackingNo") || "").replace(/\s|-/g, "").slice(0, 30);
+  const courier = String(fd.get("courier") || "");
+  // 결제완료 주문에 송장을 넣으면 자동으로 배송중
+  if (trackingNo && nextStatus === "PAID") nextStatus = "SHIPPING";
   await prisma.order.update({
     where: { id },
     data: {
       status: nextStatus,
-      trackingNo: String(fd.get("trackingNo") || "").trim() || null,
+      trackingNo: trackingNo || null,
+      ...(COURIERS.some((c) => c.key === courier) ? { courier } : {}),
       ...(nextStatus === "DELIVERED" && cur.status !== "DELIVERED" ? { deliveredAt: new Date() } : {}),
     },
   });

@@ -150,6 +150,7 @@ model Order {
   paymentKey  String?
   paidAt      DateTime?
   trackingNo  String?
+  courier     String      @default("") // 택배사 코드 (lib/couriers.ts, 비우면 기본 택배사)
   refundedAmount   Int       @default(0)     // 지금까지 환불한 금액 합계
   shippingRefunded Boolean   @default(false) // 배송비를 이미 환불했는지
   canceledAt       DateTime?

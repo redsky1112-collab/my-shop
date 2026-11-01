@@ -8,6 +8,7 @@ import { logout, withdraw } from "../login/actions";
 import CancelButton from "../order/CancelButton";
 import { customerCancelable } from "@/lib/refund";
 import { CLAIM_STATUS, CLAIM_TYPES, claimWindow } from "@/lib/claims";
+import TrackLink from "@/components/TrackLink";
 
 const PROVIDER_LABEL: Record<string, string> = { kakao: "카카오", naver: "네이버", demo: "테스트" };
 
@@ -54,16 +55,17 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
               </div>
               <div>{o.items[0]?.name}{o.items.length > 1 && ` 외 ${o.items.length - 1}건`}</div>
               <div className="row between">
-                <span className="small muted">{o.trackingNo ? `송장 ${o.trackingNo}` : ""}</span>
+                <span />
                 <b>{won(o.total)}</b>
               </div>
               {o.refundedAmount > 0 && <div className="small out">환불 {won(o.refundedAmount)}</div>}
+              {o.status !== "CANCELED" && <TrackLink courier={o.courier} trackingNo={o.trackingNo} />}
               {customerCancelable(o) && <CancelButton orderNo={o.orderNo} paid={o.status === "PAID"} />}
               {o.claims.map((c) => (
                 <div key={c.id} className="claim-line small">
                   {CLAIM_TYPES[c.type as "RETURN" | "EXCHANGE"]} 신청 · <b>{CLAIM_STATUS[c.status]}</b>
                   {c.adminMemo && <span className="muted"> — {c.adminMemo}</span>}
-                  {c.resendTrackingNo && <span className="muted"> (교환 송장 {c.resendTrackingNo})</span>}
+                  {c.resendTrackingNo && <TrackLink courier={o.courier} trackingNo={c.resendTrackingNo} label="교환 상품 조회" />}
                 </div>
               ))}
               {claimWindow(o).ok && <Link href={`/order/claim/${o.orderNo}`} className="link small">교환·반품 신청</Link>}

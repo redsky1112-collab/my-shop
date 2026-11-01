@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin";
 import { won } from "@/lib/format";
 import { ORDER_STATUS } from "@/lib/site";
 import { updateOrder } from "../../actions";
+import { COURIERS, DEFAULT_COURIER, trackUrl } from "@/lib/couriers";
 
 export default async function Orders({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   await requireAdmin();
@@ -38,9 +39,13 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
                       .filter(([k]) => k !== "CANCELED" || o.status === "CANCELED" || o.status === "PENDING")
                       .map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
-                  <input name="trackingNo" placeholder="송장번호" defaultValue={o.trackingNo ?? ""} />
+                  <select name="courier" defaultValue={o.courier || DEFAULT_COURIER} aria-label="택배사">
+                    {COURIERS.map((c) => <option key={c.key} value={c.key}>{c.name}</option>)}
+                  </select>
+                  <input name="trackingNo" placeholder="송장번호 (입력하면 배송중)" defaultValue={o.trackingNo ?? ""} inputMode="numeric" />
                   <button className="btn small">저장</button>
                 </form>
+                {o.trackingNo && <a href={trackUrl(o.courier, o.trackingNo)} target="_blank" rel="noopener noreferrer" className="link small">조회</a>}
               </td>
             </tr>
           ))}
