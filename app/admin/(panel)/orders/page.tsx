@@ -11,13 +11,27 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
   const { status } = await searchParams;
   const where = status && ORDER_STATUS[status] ? { status } : { status: { not: "PENDING" } };
   const orders = await prisma.order.findMany({ where, include: { items: true }, orderBy: { createdAt: "desc" }, take: 200 });
+  const pendingCount = await prisma.order.count({ where: { status: "PENDING" } });
+  const cur = status && ORDER_STATUS[status] ? status : "";
   return (
     <>
       <h1 className="page-title">주문</h1>
       <nav className="tabs">
-        <Link href="/admin/orders">전체(결제대기 제외)</Link>
-        {Object.entries(ORDER_STATUS).map(([k, v]) => <Link key={k} href={`/admin/orders?status=${k}`}>{v}</Link>)}
+        <Link href="/admin/orders" style={!cur ? { fontWeight: 700, textDecoration: "underline" } : undefined}>전체(결제대기 제외)</Link>
+        {Object.entries(ORDER_STATUS).map(([k, v]) => (
+          <Link key={k} href={`/admin/orders?status=${k}`} style={cur === k ? { fontWeight: 700, textDecoration: "underline" } : undefined}>
+            {v}{k === "PENDING" && pendingCount > 0 && ` (${pendingCount})`}
+          </Link>
+        ))}
       </nav>
+      {!cur && pendingCount > 0 && (
+        <p className="small muted">
+          결제를 끝내지 않은 주문 {pendingCount}건은 목록에서 빠져 있어요. <Link href="/admin/orders?status=PENDING" className="link">결제대기 보기</Link>
+        </p>
+      )}
+      {orders.length === 0 && (
+        <p className="muted">{cur === "PENDING" ? "결제대기 주문이 없어요." : "아직 들어온 주문이 없어요. 결제가 끝난 주문만 여기 보여요."}</p>
+      )}
       <table className="table">
         <thead><tr><th>주문번호/일시</th><th>상품</th><th>금액</th><th>받는 분/주소</th><th>상태·송장</th></tr></thead>
         <tbody>
